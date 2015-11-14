@@ -6,6 +6,8 @@ public class Tourelle : MonoBehaviour {
     //values that will be set in the Inspector
     public Transform Target;
     public float RotationSpeed;
+    public float BulletSpeed;
+    public Rigidbody Bullet;
 
     //values for internal use
     private Quaternion _lookRotation;
@@ -14,8 +16,8 @@ public class Tourelle : MonoBehaviour {
     private Vector3 _aim;
     private bool _fire;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         _aim = new Vector3();
         _fire = true;
     }
@@ -45,9 +47,13 @@ public class Tourelle : MonoBehaviour {
             _lookRotation = Quaternion.LookRotation(_direction);
 
             //rotate us over time according to speed until we are in the required rotation
-            //tourelle.rotation = Quaternion.Slerp(tourelle.rotation, _lookRotation, Time.deltaTime * RotationSpeed);
-
+            tourelle.rotation = Quaternion.Slerp(tourelle.rotation, _lookRotation, Time.deltaTime * RotationSpeed);
+    
             tourelle.FindChild("Canon").Rotate(0, 0, 20);
+
+            Transform shoot_point = tourelle.FindChild("Canon").FindChild("Shoot");
+            Rigidbody bullet = (Rigidbody)Instantiate(Bullet, shoot_point.position, shoot_point.rotation);
+            bullet.velocity = shoot_point.forward * BulletSpeed;
         }
     }
 }
