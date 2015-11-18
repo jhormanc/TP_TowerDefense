@@ -4,7 +4,7 @@ using System.Collections;
 public class Manager : MonoBehaviour
 { 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
 	
 	}

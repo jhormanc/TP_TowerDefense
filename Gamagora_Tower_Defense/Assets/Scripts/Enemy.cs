@@ -9,13 +9,15 @@ public class Enemy : MonoBehaviour
     // Déplacements
     private bool _move;
     private Transform _target;
+    private Vector3 _last_pos;
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
-        _move = false;
+        _move = true;
         _target = GameObject.Find("EndPoint").transform;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
+        _last_pos = transform.position;
     }
 	
 	// Update is called once per frame
@@ -47,9 +49,11 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
+        transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
+        transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = true;
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().Emit(1);
-        DestroyObject(gameObject, 0.5f);
+        transform.FindChild("Flash").GetComponent<ParticleSystem>().Emit(10);
+        Destroy(gameObject, 0.1f);
     }
 
     private void Move()
@@ -67,5 +71,11 @@ public class Enemy : MonoBehaviour
         //    transform.position += new Vector3(0, 0, DeltaPos);
         //else if (Input.GetKey(KeyCode.Q))
         //    transform.position -= new Vector3(0, 0, DeltaPos);
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(_last_pos, transform.position);
     }
 }

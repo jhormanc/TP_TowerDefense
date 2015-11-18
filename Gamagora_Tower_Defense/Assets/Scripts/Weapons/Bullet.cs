@@ -7,25 +7,25 @@ public class Bullet : MonoBehaviour
     public Tourelle Source = null;
 
 	// Use this for initialization
-	void Start ()
+	void Awake()
     {
 	
 	}
 	
 	// Update is called once per frame
-	void Update ()
+	void Update()
     {
 	
 	}
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "Enemy")
-        {
-            Enemy target = other.GetComponent<Enemy>();
-            if(target != null)
-                target.ReceiveDamage(Degats, Source);
-            DestroyObject(gameObject);
-        }
-    }
+    //void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.tag == "Enemy")
+    //    {
+    //        Enemy target = other.GetComponent<Enemy>();
+    //        if (target != null)
+    //            target.ReceiveDamage(Degats, Source);
+    //        gameObject.SetActive(false);
+    //    }
+    //}
 }

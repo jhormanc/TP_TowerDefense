@@ -31,17 +31,17 @@ public class Tourelle : MonoBehaviour
     private int _id_target;
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         _direction = new Vector3();
-        _angleRotation = 0F;
+        _angleRotation = 0f;
         _fire = false;
         _auto = true;
         _bullets = new GameObject[BulletsSize];
         _bullet_nb = 0;
         _targets = new ArrayList();
         _id_target = 0;
-        this.GetComponent<SphereCollider>().radius = Range;
+        GetComponent<SphereCollider>().radius = Range;
 
         for (int i = 0; i < BulletsSize; i++)
         {
@@ -69,8 +69,6 @@ public class Tourelle : MonoBehaviour
 
         Move();
 
-
-
         if (_fire)
             Fire();
     }
@@ -95,19 +93,33 @@ public class Tourelle : MonoBehaviour
 
     void Fire()
     {
+        RaycastHit hit_info;
         Transform canon = transform.FindChild("Base").FindChild("Tourelle").FindChild("Canon");
         Transform shoot_point = canon.FindChild("Shoot");
         GameObject bullet = _bullets[_bullet_nb];
 
         bullet.GetComponent<Bullet>().Source = this;
+        bullet.SetActive(true);
         bullet.transform.position = shoot_point.position;
         bullet.transform.rotation = shoot_point.rotation;
-        bullet.SetActive(true);
-        bullet.GetComponent<Rigidbody>().velocity = shoot_point.forward * BulletSpeed;
-        bullet.GetComponent<TrailRenderer>().enabled = true;
-        StartCoroutine(DisableBulletEffect(_bullet_nb, 0.5f));
+        bullet.transform.forward = shoot_point.forward;
+        bullet.GetComponent<Rigidbody>().velocity = shoot_point.forward;
+        bullet.GetComponent<Rigidbody>().AddForce(Vector3.zero);
+        bullet.GetComponent<Rigidbody>().AddForce(shoot_point.forward * BulletSpeed);
 
+        bullet.GetComponent<TrailRenderer>().enabled = true;
+        
+        StartCoroutine(DisableBulletEffect(_bullet_nb, 0.5f));
         canon.Rotate(0, 0, 20);
+
+        bool hit = Physics.Raycast(shoot_point.position, shoot_point.forward, out hit_info, 2000);
+
+        if (hit && hit_info.collider.tag == "Enemy")
+        {
+            Enemy enemy = hit_info.collider.gameObject.transform.GetComponent<Enemy>();
+            if (enemy != null && !enemy.IsDead())
+                enemy.ReceiveDamage(bullet.GetComponent<Bullet>().Degats, this);
+        }
 
         if (_bullet_nb < BulletsSize - 1)
             _bullet_nb++;
@@ -203,6 +215,12 @@ public class Tourelle : MonoBehaviour
         }
 
         return id;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, Range);
     }
 
 }
