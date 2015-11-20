@@ -5,14 +5,13 @@ public class Spawn : MonoBehaviour
 {
     public GameObject StartPoint;
     public GameObject EndPoint;
-    public static GameObject[] _ennemy_list;
     public float SpawnDelay;
     public bool WaveIsOver;
     public bool Win;
 
     private static readonly int SpawnSize = 10;
+    private static GameObject[] _ennemy_list;
     private ArrayList _spawn;
-    private int _id_spawn;
 
 	// Use this for initialization
 	void Awake()
@@ -22,13 +21,12 @@ public class Spawn : MonoBehaviour
         transform.position = StartPoint.transform.position;
         WaveIsOver = false;
         Win = false;
-        _id_spawn = 0;
         _spawn = new ArrayList();
         _ennemy_list = Resources.LoadAll<GameObject>("Prefabs/Enemies");
         for (int i = 0; i < SpawnSize; i++)
         {
-            _spawn.Add((Enemy)Instantiate(_ennemy_list[0].GetComponent<Enemy>(), transform.position, transform.rotation));
-            ((Enemy)_spawn[i]).gameObject.SetActive(false);
+            _spawn.Add((GameObject)Instantiate(_ennemy_list[0], transform.position, transform.rotation));
+            ((GameObject)_spawn[i]).SetActive(false);
         }
     }
 	
@@ -38,6 +36,11 @@ public class Spawn : MonoBehaviour
 
 	}
 
+    void FixedUpdate()
+    {
+
+    }
+
     public void NewWave(int wave)
     {
         WaveIsOver = false;
@@ -45,14 +48,19 @@ public class Spawn : MonoBehaviour
         StartCoroutine(SpawnEnnemis());
     }
 
+    public void SetDead(GameObject enemy)
+    {
+        _spawn.Remove(enemy);
+    }
+
     IEnumerator SpawnEnnemis()
     {
         for (int i = 0; i < _spawn.Count; i++)
         {
-            Enemy e = (Enemy)_spawn[i];
+            GameObject e = (GameObject)_spawn[i];
             UnityEditor.PrefabUtility.ResetToPrefabState(e);
-            e.Target = EndPoint;
-            e.gameObject.SetActive(true);
+            e.GetComponent<Enemy>().Target = EndPoint;
+            e.SetActive(true);
 
             yield return new WaitForSeconds(SpawnDelay);
         }

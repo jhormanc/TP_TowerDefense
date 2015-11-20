@@ -5,11 +5,19 @@ public class Enemy : MonoBehaviour
 {
     public float HP;
     public float Speed;
+    public float Degats;
     public GameObject Target;
 
     // Déplacements
-    private bool _move;
-    private Vector3 _last_pos;
+    protected bool _move;
+    protected Vector3 _last_pos;
+
+    protected GameManager Manager;
+
+    public Enemy()
+    {
+
+    }
 
     // Use this for initialization
     void Awake()
@@ -18,11 +26,19 @@ public class Enemy : MonoBehaviour
         _move = true;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
         _last_pos = transform.position;
+
+        Manager = GameManager.Instance;
     }
 	
 	// Update is called once per frame
 	void Update()
     {
+        if (HP < 0f)
+        {
+            Manager.SetDead(gameObject);
+            Die();
+        }
+
         if (Input.GetKeyDown(KeyCode.A))
             _move = !_move;
 
@@ -30,16 +46,9 @@ public class Enemy : MonoBehaviour
             Move();
     }
 
-    public void ReceiveDamage(float damage, Tourelle source)
+    public void ReceiveDamage(float damage)
     {
         HP -= damage;
-
-        if (HP < 0f)
-        {
-            if(source != null)
-                source.RemoveTarget();
-            Die();
-        }
     }
 
     public bool IsDead()
@@ -47,7 +56,7 @@ public class Enemy : MonoBehaviour
         return HP < 0f;
     }
 
-    private void Die()
+    protected void Die()
     {
         transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
@@ -56,7 +65,7 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject, 0.1f);
     }
 
-    private void Move()
+    protected void Move()
     {
         if(Target != null)
         {

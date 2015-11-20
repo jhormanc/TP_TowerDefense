@@ -8,12 +8,17 @@ public class GameManager : Singleton<GameManager>
 
     public Spawn SpawnManager;
 
+    private static GameObject[] _weapons_list;
+    private ArrayList _weapons;
+
     private int _wave;
 
 	// Use this for initialization
 	void Awake()
     {
         SpawnManager = GetComponent<Spawn>();
+        _weapons_list = Resources.LoadAll<GameObject>("Prefabs/Weapons");
+        _weapons = new ArrayList();
         _wave = 1;
         InitGame();
     }
@@ -31,8 +36,24 @@ public class GameManager : Singleton<GameManager>
         }
 	}
 
-    void InitGame()
+    private void InitGame()
     {
+        NewWeapon(1, new Vector3(18.86f, 0f, 31.49f));
         SpawnManager.NewWave(_wave);
+    }
+
+    public void SetDead(GameObject enemy)
+    {
+        SpawnManager.SetDead(enemy);
+        for(int i = 0; i < _weapons.Count; i++)
+        {
+            ((GameObject)_weapons[i]).GetComponent<Tourelle>().RemoveTarget(enemy);
+        }
+    }
+
+    public void NewWeapon(int nb, Vector3 pos)
+    {
+        GameObject weapon = (GameObject)Instantiate(_weapons_list[nb], pos, Quaternion.Euler(0, 0, 0));
+        _weapons.Add(weapon);
     }
 }
