@@ -4,25 +4,27 @@ using System.Collections;
 public class Tourelle : MonoBehaviour
 {
     // Values that will be set in the Inspector
-    public float RotationSpeed;
-    public float BulletSpeed;
     public float Range;
     public GameObject Bullet;
+    public int FireRate;
     
     // Values for internal use
     private static readonly float DeltaRot = 0.3f;
     private static readonly int BulletsSize = 100;
 
     // Visée
+    private static readonly float RotationSpeed = 3f; // Rotation de la tourelle lors d'un mouvement clavier
     private Quaternion _lookRotation;
     private Vector3 _direction;
     private float _angleRotation;
     private bool _auto;
 
     // Shoot
-    private bool _fire, _lastFire;
+    private bool _fire, _lastFire, _allowFire;
+    private Quaternion _canonRotation;
 
     // Bullets
+    private static readonly float BulletSpeed = 5000f;
     private GameObject[] _bullets;
     private int _bullet_nb;
 
@@ -36,6 +38,7 @@ public class Tourelle : MonoBehaviour
         _direction = new Vector3();
         _angleRotation = 0f;
         _fire = false;
+        _allowFire = true;
         _auto = true;
         _bullets = new GameObject[BulletsSize];
         _bullet_nb = 0;
@@ -56,43 +59,79 @@ public class Tourelle : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-            _auto = !_auto;
+        Transform canon = transform.FindChild("Base").FindChild("Tourelle").FindChild("Canon");
 
-        if (_targets.Count == 0)
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            _auto = !_auto;
+            if (_auto == false)
+            {
+                _fire = false;
+                SetFire();
+            }
+        }
+
+        if ((_auto && !_lastFire && _targets.Count > 0 && CanFire()) || (!_auto && Input.GetKeyDown(KeyCode.F)))
+        {
+            _fire = true;
+        }
+        else if ((_auto && _lastFire && (_targets.Count == 0 || !CanFire())) || (!_auto && Input.GetKeyUp(KeyCode.F)))
         {
             _fire = false;
-            EmitParticle(_fire);
-            AudioSource audio = GetComponent<AudioSource>();
-            audio.Stop();
+            SetFire();
         }
+
+        _lastFire = _fire;
 
         Move();
 
-        if (_fire)
-            Fire();
+        canon.localRotation = Quaternion.Slerp(canon.localRotation, _canonRotation, Time.deltaTime * FireRate);
+    }
+
+    void FixedUpdate()
+    {
+        if (_fire && _allowFire && CanFire())
+        {
+            SetFire();
+            StartCoroutine(Fire());
+        }
     }
 
     void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Enemy")
         {
-            _targets.Add(other.transform);
-            _fire = true;
-            EmitParticle(true);
-            AudioSource audio = GetComponent<AudioSource>();
-            audio.Play();
+            _targets.Add(other.transform.gameObject);
         }
     }
 
     void OnTriggerExit(Collider other)
     {
         if (other.tag == "Enemy")
-            _targets.Remove(other.transform);
+            _targets.Remove(other.transform.gameObject);
     }
 
-    void Fire()
+    bool CanFire()
     {
+        Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
+
+        return !_auto || Quaternion.Angle(tourelle.rotation, _lookRotation) < 5f;
+    }
+
+    void SetFire()
+    {
+        EmitParticle(_fire);
+        AudioSource audio = GetComponent<AudioSource>();
+        if (_fire)
+            audio.Play();
+        else
+            audio.Stop();
+    }
+
+    IEnumerator Fire()
+    {
+        _allowFire = false;
+        
         RaycastHit hit_info;
         Transform canon = transform.FindChild("Base").FindChild("Tourelle").FindChild("Canon");
         Transform shoot_point = canon.FindChild("Shoot");
@@ -110,7 +149,8 @@ public class Tourelle : MonoBehaviour
         bullet.GetComponent<TrailRenderer>().enabled = true;
         
         StartCoroutine(DisableBulletEffect(_bullet_nb, 0.5f));
-        canon.Rotate(0, 0, 20);
+
+        _canonRotation = canon.localRotation * Quaternion.Euler(0, 0, 45);
 
         bool hit = Physics.Raycast(shoot_point.position, shoot_point.forward, out hit_info, 2000);
 
@@ -125,6 +165,9 @@ public class Tourelle : MonoBehaviour
             _bullet_nb++;
         else
             _bullet_nb = 0;
+
+        yield return new WaitForSeconds(FireRate != 0 ? 1f / Mathf.Abs((float)FireRate) : 0f);
+        _allowFire = true;
     }
 
     void Move()
@@ -144,10 +187,12 @@ public class Tourelle : MonoBehaviour
                 _lookRotation = Quaternion.LookRotation(_direction);
 
                 // Rotate us over time according to speed until we are in the required rotation
-                if(_auto)
-                    tourelle.rotation = _lookRotation;
-                else
-                    Quaternion.Slerp(tourelle.rotation, _lookRotation, Time.deltaTime * RotationSpeed);
+                float speed = 3f;
+
+                if (Quaternion.Angle(tourelle.rotation, _lookRotation) < 5f)
+                    speed *= 5f;
+
+                tourelle.rotation = Quaternion.Slerp(tourelle.rotation, _lookRotation, Time.deltaTime * speed);
             }
         }
         else
@@ -190,7 +235,7 @@ public class Tourelle : MonoBehaviour
     {
         int id = GetIdTarget();
         if (_targets.Count > 0 && _targets[id] != null)
-            return (Transform)_targets[id];
+            return ((GameObject)_targets[id]).transform;
         return null;
     }
 

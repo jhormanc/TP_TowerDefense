@@ -5,17 +5,17 @@ public class Enemy : MonoBehaviour
 {
     public float HP;
     public float Speed;
+    public GameObject Target;
 
     // Déplacements
     private bool _move;
-    private Transform _target;
     private Vector3 _last_pos;
 
     // Use this for initialization
     void Awake()
     {
+        Target = null;
         _move = true;
-        _target = GameObject.Find("EndPoint").transform;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
         _last_pos = transform.position;
     }
@@ -58,19 +58,11 @@ public class Enemy : MonoBehaviour
 
     private void Move()
     {
-        float step = Speed * Time.deltaTime;
-
-        transform.position = Vector3.MoveTowards(transform.position, _target.position, step);
-
-        //if (Input.GetKey(KeyCode.Z))
-        //    transform.position += new Vector3(DeltaPos, 0, 0);
-        //else if (Input.GetKey(KeyCode.S))
-        //    transform.position -= new Vector3(DeltaPos, 0, 0);
-
-        //if (Input.GetKey(KeyCode.D))
-        //    transform.position += new Vector3(0, 0, DeltaPos);
-        //else if (Input.GetKey(KeyCode.Q))
-        //    transform.position -= new Vector3(0, 0, DeltaPos);
+        if(Target != null)
+        {
+            float step = Speed * Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, step);
+        }
     }
 
     void OnDrawGizmos()
