@@ -46,77 +46,81 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Editor\CrossPlatformInput\CrossPlatformInputInitialize.cs" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendOneOne.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderRGB.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\SeparableWeightedBlurDof34.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ShowAlphaChannel.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SunShaftsComposite.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionCurves.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ScreenSpaceAmbientObscurance.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\NFAA.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\TiltShiftHdrLensBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\VignetteShader.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfFieldScatter.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\MotionBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MobileBloom.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\MinMaxReduction.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\SSAA.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\RadialBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfFieldDX11.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ContrastComposite.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAAPreset3.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\FisheyeShader.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Apply.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\frag_ao.cginc" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendOneOne.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderRGB.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\SeparableWeightedBlurDof34.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ShowAlphaChannel.shader" />
+     <None Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_README_FIRST.txt" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SunShaftsComposite.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionCurves.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ScreenSpaceAmbientObscurance.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\NFAA.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\TiltShiftHdrLensBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\VignetteShader.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfFieldScatter.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\MotionBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MobileBloom.shader" />
+     <None Include="Assets\Sources\Popcorn FX\PopcornFX\README.txt" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\MinMaxReduction.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\SSAA.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\RadialBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfFieldDX11.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ContrastComposite.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAAPreset3.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\FisheyeShader.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Apply.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\frag_ao.cginc" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAlpha.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfField34.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MobileBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SSAOShader.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfField34.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MobileBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SSAOShader.shader" />
      <None Include="Assets\Standard Assets\ParticleSystems\ParticleSystemsGuidelines.txt" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ConvertDepth.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionCurvesSimple.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderYUV.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CreaseApply.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ChromaticAberrationShader.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ConvertDepth.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionCurvesSimple.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderYUV.shader" />
+     <None Include="Assets\Sources\Popcorn FX\PopcornFX\Resources\PKFxDistortionEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CreaseApply.shader" />
+     <None Include="Assets\Sources\Popcorn FX\PopcornFX\Resources\PKFxDistQuickDirtyBlurEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ChromaticAberrationShader.shader" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\GlobalFog.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\GlobalFog.shader" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAddSoft.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Luminance.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionSelective.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\Bokeh34.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CameraMotionBlurDX11.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\SeparableBlurPlus.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MultiPassHollywoodFlares.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\BlurEffectConeTaps.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CameraMotionBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\DLAA.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseAndGrainDX11.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BrightPassFilter2.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\SeparableBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\MotionBlurClear.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionEffect.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\GrayscaleEffect.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SepiaToneEffect.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\TwirlEffect.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\VortexEffect.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Adaptation.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseAndGrain.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\VignettingShader.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Tonemapper.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BrightPassFilter.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAA2.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrection3DLut.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\LensFlareCreate.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\EdgeDetectNormals.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\PrepareSunShaftsBlur.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\Blend.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SimpleClear.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Luminance.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionSelective.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\Bokeh34.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CameraMotionBlurDX11.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\SeparableBlurPlus.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MultiPassHollywoodFlares.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\BlurEffectConeTaps.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CameraMotionBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\DLAA.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseAndGrainDX11.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BrightPassFilter2.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\SeparableBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\MotionBlurClear.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\GrayscaleEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SepiaToneEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\TwirlEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\VortexEffect.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Adaptation.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseAndGrain.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\VignettingShader.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Tonemapper.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BrightPassFilter.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAA2.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrection3DLut.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\LensFlareCreate.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\EdgeDetectNormals.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\PrepareSunShaftsBlur.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\Blend.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SimpleClear.shader" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAdd.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAA3Console.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAAPreset2.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlurAndFlares.shader" />
-     <None Include="Assets\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendForBloom.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAA3Console.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAAPreset2.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlurAndFlares.shader" />
+     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendForBloom.shader" />
  <Reference Include="Assembly-UnityScript">
  <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
  </Reference>
@@ -167,6 +171,18 @@
  </Reference>
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>D:/Install/Unity5/Editor/Data/PlaybackEngines/macstandalonesupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="PKFx-Runtime">
+ <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/PKFx-Runtime.dll</HintPath>
+ </Reference>
+ <Reference Include="PKFx-Helper">
+ <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/PKFx-Helper.dll</HintPath>
+ </Reference>
+ <Reference Include="PKFxManager">
+ <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/PKFxManager.dll</HintPath>
+ </Reference>
+ <Reference Include="PKFx-Editor">
+ <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/Editor/PKFx-Editor.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
  <HintPath>D:/Install/Unity5/Editor/Data/Managed/Mono.Cecil.dll</HintPath>

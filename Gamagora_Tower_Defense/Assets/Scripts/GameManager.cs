@@ -38,7 +38,7 @@ public class GameManager : Singleton<GameManager>
 
     private void InitGame()
     {
-        NewWeapon(1, new Vector3(18.86f, 0f, 31.49f));
+        NewWeapon(5, new Vector3(18.86f, 0f, 31.49f));
         SpawnManager.NewWave(_wave);
     }
 

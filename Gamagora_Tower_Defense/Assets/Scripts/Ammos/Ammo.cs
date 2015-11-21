@@ -6,13 +6,13 @@ public class Ammo : MonoBehaviour
     public float Degats;
 
     // Use this for initialization
-    void Start()
+    protected virtual void Awake()
     {
 	
 	}
 	
 	// Update is called once per frame
-	void Update ()
+	protected virtual void Update()
     {
 	
 	}

@@ -33,7 +33,7 @@ public class Weapon : MonoBehaviour
     protected int _id_target;
 
     // Use this for initialization
-    void Awake()
+    protected virtual void Awake()
     {
         _direction = new Vector3();
         _angleRotation = 0f;
@@ -46,10 +46,13 @@ public class Weapon : MonoBehaviour
         _id_target = 0;
         GetComponent<SphereCollider>().radius = Range;
 
-        for (int i = 0; i < BulletsSize; i++)
+        if (Bullet != null)
         {
-            _bullets[i] = (GameObject)Instantiate(Bullet);
-            _bullets[i].SetActive(false);
+            for (int i = 0; i < BulletsSize; i++)
+            {
+                _bullets[i] = (GameObject)Instantiate(Bullet);
+                _bullets[i].SetActive(false);
+            }
         }
 
         EmitParticle(false);
@@ -132,7 +135,10 @@ public class Weapon : MonoBehaviour
     protected virtual void Fire()
     {
         Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon").FindChild("Shoot");
-        GameObject bullet = _bullets[_bullet_nb];
+        GameObject bullet = null;
+
+        if(Bullet != null)
+            bullet = _bullets[_bullet_nb];
 
         StartCoroutine(Fire(shoot_point, bullet, true));
 
@@ -196,7 +202,7 @@ public class Weapon : MonoBehaviour
         return ret * Degats;
     }
 
-    protected void Move(Transform tourelle, Transform head)
+    protected void Move(Transform tourelle, Transform head, Transform look_point = null)
     {
         if (_auto)
         {
@@ -205,7 +211,7 @@ public class Weapon : MonoBehaviour
             if (target != null)
             {
                 // Find the vector pointing from our position to the target
-                _direction = (target.position - head.position).normalized;
+                _direction = (target.position - (look_point != null ? look_point.position : head.position)).normalized;
 
                 // Create the rotation we need to be in to look at the target
                 _lookRotation = Quaternion.LookRotation(_direction);
@@ -244,8 +250,9 @@ public class Weapon : MonoBehaviour
     protected virtual void Move()
     {
         Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
+        Transform look = tourelle.FindChild("Cannon").FindChild("Shoot");
 
-        Move(tourelle, tourelle);
+        Move(tourelle, tourelle, look);
     }
 
     protected virtual void EmitParticle(bool emit)

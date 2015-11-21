@@ -8,4 +8,9 @@ public class Rocket : Ammo
     {
 
     }
+
+    protected override void Update()
+    {
+
+    }
 }
