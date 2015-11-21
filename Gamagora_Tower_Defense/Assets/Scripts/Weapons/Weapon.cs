@@ -6,7 +6,7 @@ public class Weapon : MonoBehaviour
     // Values that will be set in the Inspector
     public float Range;
     public GameObject Bullet;
-    public int FireRate;
+    public float FireRate;
     public float BulletSpeed;
     public float Degats;
 
@@ -65,10 +65,14 @@ public class Weapon : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A))
         {
             _auto = !_auto;
+
             if (_auto == false)
             {
                 _fire = false;
                 SetFire();
+                Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
+                Transform head = tourelle.FindChild("head");
+                _angleRotation = head != null ? head.rotation.x : tourelle.rotation.x;
             }
         }
 
@@ -185,12 +189,12 @@ public class Weapon : MonoBehaviour
                 _bullet_nb = 0;
         }
 
-        yield return new WaitForSeconds(FireRate != 0 ? 1f / Mathf.Abs((float)FireRate) : 0f);
+        yield return new WaitForSeconds(FireRate != 0f ? 1f / Mathf.Abs(FireRate) : 0f);
 
         _allowFire = true;
     }
 
-    protected virtual float CalculateDamage(GameObject bullet, Enemy enemy)
+    public virtual float CalculateDamage(GameObject bullet, Enemy enemy)
     {
         float ret = 0f;
 
@@ -202,16 +206,21 @@ public class Weapon : MonoBehaviour
         return ret * Degats;
     }
 
-    protected void Move(Transform tourelle, Transform head, Transform look_point = null)
+    protected void Move(Transform tourelle, Transform head = null, Transform look_point = null, Vector3 target = default(Vector3))
     {
         if (_auto)
         {
-            Transform target = GetTarget();
+            if (target == Vector3.zero)
+            {
+                Transform t = GetTarget();
+                if(t != null)
+                    target = t.position;
+            }
 
             if (target != null)
             {
                 // Find the vector pointing from our position to the target
-                _direction = (target.position - (look_point != null ? look_point.position : head.position)).normalized;
+                _direction = (target - (look_point != null ? look_point.position : head != null ? head.position : tourelle.position)).normalized;
 
                 // Create the rotation we need to be in to look at the target
                 _lookRotation = Quaternion.LookRotation(_direction);
@@ -221,23 +230,35 @@ public class Weapon : MonoBehaviour
 
                 if (Quaternion.Angle(tourelle.rotation, _lookRotation) < 5f)
                     speed *= 5f;
-                
+
                 tourelle.rotation = Quaternion.Slerp(tourelle.rotation, _lookRotation, Time.deltaTime * speed);
-                if(head.rotation != tourelle.rotation)
+
+                if (head != null)
+                {
+                    tourelle.rotation = Quaternion.Euler(new Vector3(0f, tourelle.rotation.eulerAngles.y, 0f));
                     head.rotation = Quaternion.Slerp(head.rotation, _lookRotation, Time.deltaTime * speed);
+                }                    
             }
         }
         else
         {
-            if (Input.GetKey(KeyCode.Z) && _angleRotation < 45f)
+            if (Input.GetKey(KeyCode.Z) && _angleRotation < 90f)
             {
                 _angleRotation += DeltaRot * RotationSpeed;
-                head.Rotate(new Vector3(DeltaRot * RotationSpeed, 0, 0));
+
+                if(head != null)
+                    head.Rotate(new Vector3(DeltaRot * RotationSpeed, 0, 0));
+                else
+                    tourelle.Rotate(new Vector3(DeltaRot * RotationSpeed, 0, 0));
             }
             else if (Input.GetKey(KeyCode.S) && _angleRotation > -45f)
             {
                 _angleRotation -= DeltaRot * RotationSpeed;
-                head.Rotate(new Vector3(-DeltaRot * RotationSpeed, 0, 0));
+
+                if (head != null)
+                    head.Rotate(new Vector3(-DeltaRot * RotationSpeed, 0, 0));
+                else
+                    tourelle.Rotate(new Vector3(DeltaRot * RotationSpeed, 0, 0));
             }
 
             if (Input.GetKey(KeyCode.D))
@@ -252,7 +273,7 @@ public class Weapon : MonoBehaviour
         Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
         Transform look = tourelle.FindChild("Cannon").FindChild("Shoot");
 
-        Move(tourelle, tourelle, look);
+        Move(tourelle, null, look);
     }
 
     protected virtual void EmitParticle(bool emit)

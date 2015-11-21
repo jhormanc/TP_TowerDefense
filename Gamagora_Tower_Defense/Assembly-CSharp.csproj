@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Ammos\Ammo.cs" />
+     <Compile Include="Assets\Scripts\Ammos\Bomb.cs" />
      <Compile Include="Assets\Scripts\Ammos\Bullet.cs" />
      <Compile Include="Assets\Scripts\Ammos\Rocket.cs" />
      <Compile Include="Assets\Scripts\Ammos\ShotgunBullet.cs" />
@@ -61,6 +62,8 @@
      <Compile Include="Assets\Scripts\Weapons\Shotgun.cs" />
      <Compile Include="Assets\Scripts\Weapons\Tourelle.cs" />
      <Compile Include="Assets\Scripts\Weapons\Weapon.cs" />
+     <Compile Include="Assets\Sources\Elementals\Scripts\OrbitCamera.cs" />
+     <Compile Include="Assets\Sources\Elementals\Scripts\TestParticles.cs" />
      <Compile Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />
      <Compile Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Scripts\Antialiasing.cs" />
      <Compile Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Scripts\Bloom.cs" />
@@ -100,20 +103,11 @@
      <Compile Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Scripts\Twirl.cs" />
      <Compile Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Scripts\VignetteAndChromaticAberration.cs" />
      <Compile Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Scripts\Vortex.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\AddPKFxFXComponent.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\BounceDie.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\CamZoom.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\FPSCam.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\PointClickSpawn.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\RomanCandle.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\RootyTootyPointNShooty.cs" />
-     <Compile Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_Sources\Scripts\TimedSuicide.cs" />
      <Compile Include="Assets\Sources\SimpleParticlePack\Scripts\ParticleTester.cs" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderRGB.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\SeparableWeightedBlurDof34.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ShowAlphaChannel.shader" />
-     <None Include="Assets\Sources\Popcorn FX\DiscoveryPack_Demo\_README_FIRST.txt" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\SunShaftsComposite.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionCurves.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ScreenSpaceAmbientObscurance.shader" />
@@ -123,7 +117,6 @@
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfFieldScatter.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\MotionBlur.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\MobileBloom.shader" />
-     <None Include="Assets\Sources\Popcorn FX\PopcornFX\README.txt" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\MinMaxReduction.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\SSAA.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\RadialBlur.shader" />
@@ -141,12 +134,11 @@
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ConvertDepth.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionCurvesSimple.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderYUV.shader" />
-     <None Include="Assets\Sources\Popcorn FX\PopcornFX\Resources\PKFxDistortionEffect.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\CreaseApply.shader" />
-     <None Include="Assets\Sources\Popcorn FX\PopcornFX\Resources\PKFxDistQuickDirtyBlurEffect.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ChromaticAberrationShader.shader" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\GlobalFog.shader" />
+     <None Include="Assets\Sources\Elementals\!Readme.txt" />
      <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAddSoft.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\Luminance.shader" />
      <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrectionSelective.shader" />
@@ -189,15 +181,6 @@
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>D:/Install/Unity5/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
- </Reference>
- <Reference Include="PKFx-Runtime">
- <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/PKFx-Runtime.dll</HintPath>
- </Reference>
- <Reference Include="PKFx-Helper">
- <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/PKFx-Helper.dll</HintPath>
- </Reference>
- <Reference Include="PKFxManager">
- <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Assets/Sources/Popcorn FX/PopcornFX/Scripts/PKFxManager.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
  <HintPath>D:/Install/Unity5/Editor/Data/Managed/Mono.Cecil.dll</HintPath>

@@ -30,7 +30,7 @@ public class Tourelle : Weapon
         StartCoroutine(Fire(canon.FindChild("Shoot"), bullet, true));
         StartCoroutine(DisableBulletEffect(_bullet_nb, 0.5f));
 
-        _canonRotation = canon.localRotation * Quaternion.Euler(0, 0, 45);
+        _canonRotation = canon.localRotation * Quaternion.Euler(0f, 0f, 45f);
     }
 
 }
