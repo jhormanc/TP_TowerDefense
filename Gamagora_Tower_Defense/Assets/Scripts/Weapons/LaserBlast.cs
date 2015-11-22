@@ -3,7 +3,6 @@ using System.Collections;
 
 public class LaserBlast : Weapon
 {
-
     public LaserBlast() : base()
     {
 
@@ -19,8 +18,11 @@ public class LaserBlast : Weapon
     {
         Transform shoot = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
         GameObject bullet = _bullets[_bullet_nb];
-
+        bullet.transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
+        bullet.transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
         bullet.GetComponent<Rigidbody>().isKinematic = false;
+        bullet.GetComponent<BoxCollider>().enabled = true;
+        bullet.GetComponent<Bomb>().Target = GetTarget().gameObject;
         StartCoroutine(Fire(shoot, bullet, false));
     }
 
@@ -35,10 +37,12 @@ public class LaserBlast : Weapon
         {
             target_pos = target.position;
             float dist = Vector3.Distance(head.position, target_pos);
-            float h = Mathf.Tan(35f) * dist;
-            target_pos = target_pos + new Vector3(0f, h, 0f);
+            float h = dist * dist / 10f - 1f;
+            Vector3 l = target.forward * target.GetComponent<Enemy>().Speed * dist / 10f;
+            // TODO
+            //BulletSpeed = 
+            target_pos = target_pos + new Vector3(l.x, h, l.y);
         }
-
         Move(tourelle, head, null, target_pos);
         
     }

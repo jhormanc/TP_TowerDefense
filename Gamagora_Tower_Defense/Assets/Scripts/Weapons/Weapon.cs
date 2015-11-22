@@ -9,10 +9,10 @@ public class Weapon : MonoBehaviour
     public float FireRate;
     public float BulletSpeed;
     public float Degats;
+    public int BulletsSize;
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
-    protected static readonly int BulletsSize = 100;
 
     // Visée
     protected static readonly float RotationSpeed = 3f; // Rotation de l'arme lors d'un mouvement clavier
@@ -89,7 +89,7 @@ public class Weapon : MonoBehaviour
         _lastFire = _fire;
 
         Move();
-
+  
         if (_fire && _allowFire && CanFire())
         {
             SetFire();
@@ -119,8 +119,9 @@ public class Weapon : MonoBehaviour
     bool CanFire()
     {
         Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
+        Transform head = tourelle.FindChild("Head");
 
-        return !_auto || Quaternion.Angle(tourelle.rotation, _lookRotation) < 5f;
+        return !_auto || Quaternion.Angle(head != null ? head.rotation : tourelle.rotation, _lookRotation) < 5f;
     }
 
     void SetFire()

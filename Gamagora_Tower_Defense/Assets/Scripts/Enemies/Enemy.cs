@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour
     // Déplacements
     protected bool _move;
     protected Vector3 _last_pos;
+    protected Quaternion _lookRotation;
 
     protected GameManager Manager;
 
@@ -70,6 +71,12 @@ public class Enemy : MonoBehaviour
         if(Target != null)
         {
             float step = Speed * Time.deltaTime;
+
+            Vector3 direction = (Target.transform.position - transform.position).normalized;
+
+            _lookRotation = Quaternion.LookRotation(direction);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, step);
             transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, step);
         }
     }

@@ -3,19 +3,54 @@ using System.Collections;
 
 public class Bomb : Ammo
 {
+    public GameObject Target;
+
+    private static readonly float LerpTime = 10f;
+    private float _lerp;
+
     public Bomb() : base()
     {
+        _lerp = 0f;
+    }
 
+    protected override void Update()
+    {
+        base.Update();
+
+        if (Target != null)
+        { 
+            // Position de l'ennemi
+            Vector3 pos = Target.transform.position;
+
+            // On vise plus loin dans la direction où avance l'ennemi
+            //pos = pos + Target.transform.forward * Target.GetComponent<Enemy>().Speed * Vector3.Distance(transform.position, pos);
+
+            //// Direction de la bombe vers l'ennemi
+            //Vector3 direction = (pos - transform.position).normalized;
+            //Vector3 pt = transform.position + direction;
+
+            //if (transform.position != pt)
+            //{
+            //    _lerp += Time.deltaTime / LerpTime;
+            //    transform.position = Vector3.Lerp(transform.position, pt, _lerp);
+            //}
+            //else
+            //    _lerp = 0f;
+        }
     }
 
     protected void OnTriggerEnter(Collider other)
     {
+        Transform p = transform.FindChild("Particle");
         GetComponent<Rigidbody>().velocity = Vector3.zero;
         GetComponent<Rigidbody>().AddForce(Vector3.zero);
         GetComponent<Rigidbody>().isKinematic = true;
-        transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
-        transform.FindChild("Particle").GetComponent<ParticleSystem>().Play(true);
+        p.GetComponent<ParticleSystem>().enableEmission = true;
+        p.GetComponent<ParticleSystem>().Play(true);
+
         transform.FindChild("Base").gameObject.SetActive(false);
+        transform.GetComponent<BoxCollider>().enabled = false;
+        Target = null;
     }
 
     void OnParticleCollision(GameObject other)
