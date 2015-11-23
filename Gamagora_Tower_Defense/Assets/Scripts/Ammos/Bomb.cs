@@ -22,6 +22,21 @@ public class Bomb : Ammo
             // Position de l'ennemi
             Vector3 pos = Target.transform.position;
 
+            Vector3 forward = transform.TransformDirection(Vector3.forward);
+            Vector3 toOther = Target.transform.TransformDirection(Vector3.forward);
+
+            float str = Vector3.Dot(forward, toOther);
+
+            str *= Target.GetComponent<Enemy>().Speed;
+
+            if (str > 0)
+                str *= Vector3.Distance(transform.position, Target.transform.position) / 10f;
+            else
+                str *= 1f;
+
+
+            GetComponent<Rigidbody>().AddForce(transform.forward * str, ForceMode.Force);
+
             // On vise plus loin dans la direction où avance l'ennemi
             //pos = pos + Target.transform.forward * Target.GetComponent<Enemy>().Speed * Vector3.Distance(transform.position, pos);
 

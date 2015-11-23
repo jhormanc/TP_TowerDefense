@@ -207,7 +207,7 @@ public class Weapon : MonoBehaviour
         return ret * Degats;
     }
 
-    protected void Move(Transform tourelle, Transform head = null, Transform look_point = null, Vector3 target = default(Vector3))
+    protected virtual void Move(Transform tourelle, Transform head = null, Transform look_point = null, Vector3 target = default(Vector3))
     {
         if (_auto)
         {
