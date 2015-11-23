@@ -5,12 +5,9 @@ public class Bomb : Ammo
 {
     public GameObject Target;
 
-    private static readonly float LerpTime = 10f;
-    private float _lerp;
-
     public Bomb() : base()
     {
-        _lerp = 0f;
+
     }
 
     protected override void Update()
@@ -26,31 +23,19 @@ public class Bomb : Ammo
             Vector3 toOther = Target.transform.TransformDirection(Vector3.forward);
 
             float str = Vector3.Dot(forward, toOther);
+            Vector3 target_pos = Target.transform.position;
+            target_pos.y = transform.position.y;
+            float dist = Vector3.Distance(transform.position, target_pos);
+            float min_target = Target.GetComponent<SphereCollider>().radius;
+            float target_speed = Target.GetComponent<Enemy>().Speed;
 
-            str *= Target.GetComponent<Enemy>().Speed;
-
+            // TODO régler
             if (str > 0)
-                str *= Vector3.Distance(transform.position, Target.transform.position) / 10f;
+                str *= target_speed * 0.5f * dist / 7f;
             else
-                str *= 1f;
-
+                str *= dist > 5f ? dist / 20f : dist * target_speed;
 
             GetComponent<Rigidbody>().AddForce(transform.forward * str, ForceMode.Force);
-
-            // On vise plus loin dans la direction où avance l'ennemi
-            //pos = pos + Target.transform.forward * Target.GetComponent<Enemy>().Speed * Vector3.Distance(transform.position, pos);
-
-            //// Direction de la bombe vers l'ennemi
-            //Vector3 direction = (pos - transform.position).normalized;
-            //Vector3 pt = transform.position + direction;
-
-            //if (transform.position != pt)
-            //{
-            //    _lerp += Time.deltaTime / LerpTime;
-            //    transform.position = Vector3.Lerp(transform.position, pt, _lerp);
-            //}
-            //else
-            //    _lerp = 0f;
         }
     }
 
