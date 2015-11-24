@@ -28,7 +28,7 @@ public class Shotgun : Weapon
     {
         Transform canon = GetCannon();
         Transform shoot = canon.FindChild("Shoot");
-        GameObject bullet = _bullets[_bullet_nb];
+        GameObject bullet = _bullets.GetNextObj();
 
         canon.Translate(new Vector3(0f, 0f, -0.2f), Space.Self);
         StartCoroutine(Fire(shoot, bullet, false));      

@@ -23,14 +23,28 @@ public class Tourelle : Weapon
     protected override void Fire()
     {
         Transform canon = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon");
-        GameObject bullet = _bullets[_bullet_nb];
+        GameObject bullet = null;
 
-        bullet.GetComponent<TrailRenderer>().enabled = true;
+        if (_bullets != null)
+        {
+            bullet = _bullets.GetNextObj();
+            bullet.GetComponent<TrailRenderer>().enabled = true;
+            Transform target = GetTarget();
+            if(target != null)
+                bullet.GetComponent<Bullet>().Target = target.gameObject;
+        }
 
         StartCoroutine(Fire(canon.FindChild("Shoot"), bullet, true));
-        StartCoroutine(DisableBulletEffect(_bullet_nb, 0.5f));
+        StartCoroutine(DisableBulletEffect(bullet, 0.5f));
 
         _canonRotation = canon.localRotation * Quaternion.Euler(0f, 0f, 45f);
     }
 
+    protected IEnumerator DisableBulletEffect(GameObject bullet, float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+
+        if(bullet != null)
+            bullet.GetComponent<TrailRenderer>().enabled = false;
+    }
 }

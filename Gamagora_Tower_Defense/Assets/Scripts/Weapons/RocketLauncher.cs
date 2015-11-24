@@ -20,7 +20,7 @@ public class RocketLauncher : Weapon
     protected override void Fire()
     {
         Transform shoot = GetCannon();
-        GameObject bullet = _bullets[_bullet_nb];
+        GameObject bullet = _bullets.GetNextObj();
 
         EmitParticle(true);
 

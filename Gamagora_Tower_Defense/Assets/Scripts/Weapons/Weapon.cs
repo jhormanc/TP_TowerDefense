@@ -10,6 +10,7 @@ public class Weapon : MonoBehaviour
     public float BulletSpeed;
     public float Degats;
     public int BulletsSize;
+    public bool Auto; // Visée auto ou manuelle
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
@@ -19,14 +20,12 @@ public class Weapon : MonoBehaviour
     protected Quaternion _lookRotation;
     protected Vector3 _direction;
     protected float _angleRotation;
-    protected bool _auto;
 
     // Shoot
     protected bool _fire, _lastFire, _allowFire;
 
     // Bullets
-    protected GameObject[] _bullets;
-    protected int _bullet_nb;
+    protected PullManager _bullets;
 
     // Ennemis
     protected ArrayList _targets;
@@ -39,21 +38,18 @@ public class Weapon : MonoBehaviour
         _angleRotation = 0f;
         _fire = false;
         _allowFire = true;
-        _auto = true;
-        _bullets = new GameObject[BulletsSize];
-        _bullet_nb = 0;
+        Auto = true;
         _targets = new ArrayList();
         _id_target = 0;
         GetComponent<SphereCollider>().radius = Range;
 
-        if (Bullet != null)
+        if (Bullet != null && BulletsSize > 0)
         {
-            for (int i = 0; i < BulletsSize; i++)
-            {
-                _bullets[i] = (GameObject)Instantiate(Bullet);
-                _bullets[i].SetActive(false);
-            }
+            _bullets = ScriptableObject.CreateInstance<PullManager>();
+            _bullets.Init(Bullet, BulletsSize);
         }
+        else
+            _bullets = null;
 
         EmitParticle(false);
         Move();
@@ -62,25 +58,11 @@ public class Weapon : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            _auto = !_auto;
-
-            if (_auto == false)
-            {
-                _fire = false;
-                SetFire();
-                Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
-                Transform head = tourelle.FindChild("head");
-                _angleRotation = head != null ? head.rotation.x : tourelle.rotation.x;
-            }
-        }
-
-        if ((_auto && !_lastFire && _targets.Count > 0 && CanFire()) || (!_auto && Input.GetKeyDown(KeyCode.F)))
+        if ((Auto && !_lastFire && _targets.Count > 0 && CanFire()) || (!Auto && Input.GetKeyDown(KeyCode.F)))
         {
             _fire = true;
         }
-        else if ((_auto && _lastFire && (_targets.Count == 0 || !CanFire())) || (!_auto && Input.GetKeyUp(KeyCode.F)))
+        else if ((Auto && _lastFire && (_targets.Count == 0 || !CanFire())) || (!Auto && Input.GetKeyUp(KeyCode.F)))
         {
             _fire = false;
             SetFire();
@@ -121,7 +103,7 @@ public class Weapon : MonoBehaviour
         Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
         Transform head = tourelle.FindChild("Head");
 
-        return !_auto || Quaternion.Angle(head != null ? head.rotation : tourelle.rotation, _lookRotation) < 5f;
+        return !Auto || Quaternion.Angle(head != null ? head.rotation : tourelle.rotation, _lookRotation) < 5f;
     }
 
     void SetFire()
@@ -142,8 +124,8 @@ public class Weapon : MonoBehaviour
         Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon").FindChild("Shoot");
         GameObject bullet = null;
 
-        if(Bullet != null)
-            bullet = _bullets[_bullet_nb];
+        if(_bullets != null)
+            bullet = _bullets.GetNextObj();
 
         StartCoroutine(Fire(shoot_point, bullet, true));
 
@@ -182,14 +164,6 @@ public class Weapon : MonoBehaviour
             }
         }
 
-        if (fire_bullet)
-        {
-            if (_bullet_nb < BulletsSize - 1)
-                _bullet_nb++;
-            else
-                _bullet_nb = 0;
-        }
-
         yield return new WaitForSeconds(FireRate != 0f ? 1f / Mathf.Abs(FireRate) : 0f);
 
         _allowFire = true;
@@ -209,7 +183,7 @@ public class Weapon : MonoBehaviour
 
     protected void Move(Transform tourelle, Transform head = null, Transform look_point = null, Vector3 target = default(Vector3))
     {
-        if (_auto)
+        if (Auto)
         {
             if (target == Vector3.zero)
             {
@@ -218,7 +192,7 @@ public class Weapon : MonoBehaviour
                     target = t.position;
             }
 
-            if (target != null)
+            if (target != null && target != Vector3.zero)
             {
                 // Find the vector pointing from our position to the target
                 _direction = (target - (look_point != null ? look_point.position : head != null ? head.position : tourelle.position)).normalized;
@@ -243,6 +217,10 @@ public class Weapon : MonoBehaviour
         }
         else
         {
+            Transform cam = transform.FindChild("Camera").GetComponent<Camera>().transform;
+            Transform h = (head != null ? head : tourelle.FindChild("Cannon"));
+            Vector3 dir = (h.position - cam.position);
+
             if (Input.GetKey(KeyCode.Z) && _angleRotation < 90f)
             {
                 _angleRotation += DeltaRot * RotationSpeed;
@@ -259,13 +237,23 @@ public class Weapon : MonoBehaviour
                 if (head != null)
                     head.Rotate(new Vector3(-DeltaRot * RotationSpeed, 0, 0));
                 else
-                    tourelle.Rotate(new Vector3(DeltaRot * RotationSpeed, 0, 0));
+                    tourelle.Rotate(new Vector3(-DeltaRot * RotationSpeed, 0, 0));
             }
 
             if (Input.GetKey(KeyCode.D))
                 tourelle.RotateAround(tourelle.position, new Vector3(0, 1, 0), DeltaRot * RotationSpeed);
             else if (Input.GetKey(KeyCode.Q))
                 tourelle.RotateAround(tourelle.position, new Vector3(0, 1, 0), -DeltaRot * RotationSpeed);
+
+            
+            Vector3 aim = h.position + h.transform.forward * 5f;
+            Quaternion cam_look = Quaternion.LookRotation((aim - cam.position).normalized);
+            Vector3 cam_pos = h.position - dir.magnitude * h.forward;
+
+            float speed = 5f;
+
+            cam.rotation = Quaternion.Slerp(cam.rotation, cam_look, Time.deltaTime * speed);
+            cam.position = Vector3.Slerp(cam.position, cam_pos + cam.up, Time.deltaTime * speed);
         }
     }
 
@@ -283,14 +271,6 @@ public class Weapon : MonoBehaviour
         p.GetComponent<ParticleSystem>().enableEmission = emit;
         p.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
         p.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
-    }
-
-    protected IEnumerator DisableBulletEffect(int bullet_nb, float delayTime)
-    {
-        int i = bullet_nb;
-        yield return new WaitForSeconds(delayTime);
-
-        _bullets[i].GetComponent<TrailRenderer>().enabled = false;
     }
 
     protected Transform GetTarget()

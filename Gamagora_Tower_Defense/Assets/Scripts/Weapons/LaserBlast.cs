@@ -17,13 +17,15 @@ public class LaserBlast : Weapon
     protected override void Fire()
     {
         Transform shoot = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
-        GameObject bullet = _bullets[_bullet_nb];
+        GameObject bullet = _bullets.GetNextObj();
         bullet.transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
         bullet.transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
         bullet.GetComponent<Rigidbody>().isKinematic = false;
         bullet.GetComponent<BoxCollider>().enabled = true;
         bullet.transform.FindChild("Base").gameObject.SetActive(true);
-        bullet.GetComponent<Bomb>().Target = GetTarget().gameObject;
+        Transform target = GetTarget();
+        if (target != null)
+            bullet.GetComponent<Bomb>().Target = target.gameObject;
         StartCoroutine(Fire(shoot, bullet, false));
     }
 

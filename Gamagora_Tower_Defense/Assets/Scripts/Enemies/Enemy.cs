@@ -36,8 +36,7 @@ public class Enemy : MonoBehaviour
     {
         if (HP < 0f)
         {
-            Manager.SetDead(gameObject);
-            Die();
+            StartCoroutine(Die());
         }
 
         if (Input.GetKeyDown(KeyCode.A))
@@ -57,13 +56,14 @@ public class Enemy : MonoBehaviour
         return HP < 0f;
     }
 
-    protected void Die()
+    protected IEnumerator Die()
     {
         transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = true;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().Emit(10);
-        Destroy(gameObject, 0.1f);
+        yield return new WaitForSeconds(0.25f);
+        Manager.SetDead(gameObject);
     }
 
     protected void Move()

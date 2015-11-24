@@ -6,61 +6,50 @@ public class Spawn : MonoBehaviour
     public GameObject StartPoint;
     public GameObject EndPoint;
     public float SpawnDelay;
-    public bool WaveIsOver;
-    public bool Win;
 
-    private static readonly int SpawnSize = 10;
-    private static GameObject[] _ennemy_list;
-    private ArrayList _spawn;
 
-	// Use this for initialization
-	void Awake()
+    public int NbEnemies { get; private set; }
+
+    private int SpawnSize = 10;
+    private PullManager _spawn;
+
+    // Use this for initialization
+    void Awake()
     {
         Instantiate<GameObject>(StartPoint);
         Instantiate<GameObject>(EndPoint);
         transform.position = StartPoint.transform.position;
-        WaveIsOver = false;
-        Win = false;
-        _spawn = new ArrayList();
-        _ennemy_list = Resources.LoadAll<GameObject>("Prefabs/Enemies");
-        for (int i = 0; i < SpawnSize; i++)
-        {
-            _spawn.Add((GameObject)Instantiate(_ennemy_list[0], transform.position, transform.rotation));
-            ((GameObject)_spawn[i]).SetActive(false);
-        }
+        _spawn = null;
+        NbEnemies = 0;
     }
-	
-	// Update is called once per frame
-	void Update()
+
+    public void Init(GameObject enemy)
     {
-
-	}
-
-    void FixedUpdate()
-    {
-
+        if (enemy != null)
+        {
+            _spawn = ScriptableObject.CreateInstance<PullManager>();
+            _spawn.Init(enemy, SpawnSize);
+        }
     }
 
     public void NewWave(int wave)
     {
-        WaveIsOver = false;
-        Win = false;
-        StartCoroutine(SpawnEnnemis());
+        StartCoroutine(SpawnEnnemis(wave));
     }
 
     public void SetDead(GameObject enemy)
     {
-        _spawn.Remove(enemy);
+        _spawn.RemoveObj(enemy);
+        NbEnemies--;
     }
 
-    IEnumerator SpawnEnnemis()
+    private IEnumerator SpawnEnnemis(int wave)
     {
-        for (int i = 0; i < _spawn.Count; i++)
+        for (int i = 0; i < SpawnSize; i++)
         {
-            GameObject e = (GameObject)_spawn[i];
-            UnityEditor.PrefabUtility.ResetToPrefabState(e);
+            GameObject e = _spawn.GetNextObj();
             e.GetComponent<Enemy>().Target = EndPoint;
-            e.SetActive(true);
+            NbEnemies++;
 
             yield return new WaitForSeconds(SpawnDelay);
         }
