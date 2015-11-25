@@ -1,8 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Weapon : MonoBehaviour
 {
+    public class EnemySort : IComparer
+    {
+        private AimType _type;
+
+        public EnemySort(AimType type)
+        {
+            _type = type;
+        }
+
+        public int Compare(object x, object y)
+        {
+            if(_type == AimType.First)
+                return ((GameObject)x).GetComponent<Enemy>().GetDistFromTarget().CompareTo(((GameObject)y).GetComponent<Enemy>().GetDistFromTarget());
+            else if(_type == AimType.Last)
+                return ((GameObject)y).GetComponent<Enemy>().GetDistFromTarget().CompareTo(((GameObject)x).GetComponent<Enemy>().GetDistFromTarget());
+            else
+                return ((GameObject)y).GetComponent<Enemy>().GetStrength().CompareTo(((GameObject)x).GetComponent<Enemy>().GetStrength());
+        }
+    }
+
+    public enum AimType { First, Last, Strongest };
+
     // Values that will be set in the Inspector
     public float Range;
     public GameObject Bullet;
@@ -11,6 +34,7 @@ public class Weapon : MonoBehaviour
     public float Degats;
     public int BulletsSize;
     public bool Auto; // Visée auto ou manuelle
+    public AimType Aim;
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
@@ -29,7 +53,6 @@ public class Weapon : MonoBehaviour
 
     // Ennemis
     protected ArrayList _targets;
-    protected int _id_target;
 
     // Use this for initialization
     protected virtual void Awake()
@@ -40,8 +63,10 @@ public class Weapon : MonoBehaviour
         _allowFire = true;
         Auto = true;
         _targets = new ArrayList();
-        _id_target = 0;
         GetComponent<SphereCollider>().radius = Range;
+        FireRate = Mathf.Abs(FireRate);
+        if (FireRate == 0f)
+            FireRate = 1f;
 
         if (Bullet != null && BulletsSize > 0)
         {
@@ -89,6 +114,7 @@ public class Weapon : MonoBehaviour
         if (other.tag == "Enemy")
         {
             _targets.Add(other.transform.gameObject);
+            SortTargets();
         }
     }
 
@@ -128,7 +154,11 @@ public class Weapon : MonoBehaviour
             bullet = _bullets.GetNextObj();
 
         StartCoroutine(Fire(shoot_point, bullet, true));
+    }
 
+    public void ChangeAim(AimType new_aim)
+    {
+        Aim = new_aim;
     }
 
     protected IEnumerator Fire(Transform shoot_point, GameObject bullet, bool ray_shoot)
@@ -166,7 +196,7 @@ public class Weapon : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(FireRate != 0f ? 1f / Mathf.Abs(FireRate) : 0f);
+        yield return new WaitForSeconds(1f / FireRate);
 
         _allowFire = true;
     }
@@ -199,7 +229,7 @@ public class Weapon : MonoBehaviour
                     target = t.position;
             }
 
-            if (target != null && target != Vector3.zero)
+            if (target != Vector3.zero)
             {
                 // Find the vector pointing from our position to the target
                 _direction = (target - (look_point != null ? look_point.position : head != null ? head.position : tourelle.position)).normalized;
@@ -211,7 +241,7 @@ public class Weapon : MonoBehaviour
                 speed = speed * 10f;
 
                 if (Quaternion.Angle(tourelle.rotation, _lookRotation) < 5f)
-                    speed *= 5f;
+                    speed *= 2f;
 
                 tourelle.rotation = Quaternion.Slerp(tourelle.rotation, _lookRotation, Time.deltaTime * speed);
 
@@ -282,33 +312,22 @@ public class Weapon : MonoBehaviour
 
     protected Transform GetTarget()
     {
-        int id = GetIdTarget();
-        if (_targets.Count > 0 && _targets[id] != null)
-            return ((GameObject)_targets[id]).transform;
+        if (_targets.Count > 0 && _targets[0] != null)
+            return ((GameObject)_targets[0]).transform;
         return null;
     }
 
     public void RemoveTarget(GameObject enemy)
     {
         if (_targets.Count > 0)
+        {
             _targets.Remove(enemy);
+        }
     }
 
-    protected int GetIdTarget()
+    protected void SortTargets()
     {
-        int id = 0;
-
-        switch (_id_target)
-        {
-            case 0:
-                id = 0;
-                break;
-            case 1:
-                id = _targets.Count - 1;
-                break;
-        }
-
-        return id;
+        _targets.Sort(0, _targets.Count, new EnemySort(Aim));
     }
 
     void OnDrawGizmos()

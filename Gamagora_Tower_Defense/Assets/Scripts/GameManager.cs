@@ -217,7 +217,7 @@ public class GameManager : Singleton<GameManager>
 
         for(int i = 0; i < _weapons.Count; i++)
         {
-            ((GameObject)_weapons[i]).GetComponent<Tourelle>().RemoveTarget(enemy);
+            ((GameObject)_weapons[i]).GetComponent<Weapon>().RemoveTarget(enemy);
         }
     }
 

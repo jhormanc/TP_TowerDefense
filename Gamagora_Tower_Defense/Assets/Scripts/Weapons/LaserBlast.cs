@@ -8,24 +8,11 @@ public class LaserBlast : Weapon
 
     }
 
-    protected override void Awake()
-    {
-        Transform head = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head");
-        base.Awake();
-    }
-
     protected override void Fire()
     {
         Transform shoot = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
         GameObject bullet = _bullets.GetNextObj();
-        bullet.transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
-        bullet.transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
-        bullet.GetComponent<Rigidbody>().isKinematic = false;
-        bullet.GetComponent<BoxCollider>().enabled = true;
-        bullet.transform.FindChild("Base").gameObject.SetActive(true);
-        Transform target = GetTarget();
-        if (target != null)
-            bullet.GetComponent<Bomb>().Target = target.gameObject;
+        //bullet.transform.FindChild("Base").gameObject.SetActive(true);
         StartCoroutine(Fire(shoot, bullet, false));
     }
 
@@ -46,13 +33,10 @@ public class LaserBlast : Weapon
             if (h > 15f)
                 h = 15f;
 
-            // Change bullet speed
-            BulletSpeed = 300f + dist * 17f;
-
-            target_pos +=  dist // (target.position - head.position).magnitude
+            target_pos +=  (target.position - head.position).magnitude
                              * target.forward
                              * target.GetComponent<Enemy>().Speed
-                             / (BulletSpeed * 0.02f);
+                             / (BulletSpeed);
 
             // Change target y position
             target_pos = target_pos + new Vector3(0f, h, 0f);

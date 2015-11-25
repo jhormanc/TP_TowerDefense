@@ -86,6 +86,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public float GetDistFromTarget()
+    {
+        return Vector3.Distance(transform.position, Target.transform.position);
+    }
+
+    public float GetStrength()
+    {
+        return HP * Degats;
+    }
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Bullet")
@@ -100,7 +110,20 @@ public class Enemy : MonoBehaviour
         }
     }
 
-        void OnDrawGizmos()
+    void OnParticleCollision(GameObject other)
+    {
+        // TODO Test Collisions
+        print(other.tag);
+        //if (other && other.tag == "Bullet")
+        //{
+        //    Enemy enemy = other.gameObject.GetComponent<Enemy>();
+        //    float degats = transform.parent.gameObject.GetComponent<Weapon>().CalculateDamage(gameObject, enemy);
+        //    enemy.ReceiveDamage(degats);
+        //    print(degats);
+        //}
+    }
+
+    void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(_last_pos, transform.position);

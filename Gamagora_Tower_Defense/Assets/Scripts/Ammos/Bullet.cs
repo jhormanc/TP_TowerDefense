@@ -8,4 +8,8 @@ public class Bullet : Ammo
 
     }
 
+    protected void OnTriggerEnter(Collider other)
+    {
+        GetComponent<TrailRenderer>().enabled = false;
+    }
 }
