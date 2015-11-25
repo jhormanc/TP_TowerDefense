@@ -7,7 +7,6 @@ public class Spawn : MonoBehaviour
     public GameObject EndPoint;
     public float SpawnDelay;
 
-
     public int NbEnemies { get; private set; }
 
     private int SpawnSize = 10;
@@ -45,11 +44,11 @@ public class Spawn : MonoBehaviour
 
     private IEnumerator SpawnEnnemis(int wave)
     {
+        NbEnemies = SpawnSize;
         for (int i = 0; i < SpawnSize; i++)
         {
             GameObject e = _spawn.GetNextObj();
             e.GetComponent<Enemy>().Target = EndPoint;
-            NbEnemies++;
 
             yield return new WaitForSeconds(SpawnDelay);
         }

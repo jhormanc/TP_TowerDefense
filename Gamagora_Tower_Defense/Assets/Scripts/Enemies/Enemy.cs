@@ -5,7 +5,8 @@ public class Enemy : MonoBehaviour
 {
     public float HP;
     public float Speed;
-    public float Degats;
+    public int Degats;
+    public int Points;
     public GameObject Target;
 
     // Déplacements
@@ -39,8 +40,7 @@ public class Enemy : MonoBehaviour
             StartCoroutine(Die());
         }
 
-        if (Input.GetKeyDown(KeyCode.A))
-            _move = !_move;
+        _move = true;
 
         if(_move)
             Move();
@@ -78,6 +78,11 @@ public class Enemy : MonoBehaviour
 
             transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, step);
             transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, step);
+
+            if(Vector3.Distance(transform.position, Target.transform.position) <= 1f)
+            {
+                Manager.ReceiveDamage(Degats, gameObject);
+            }
         }
     }
 

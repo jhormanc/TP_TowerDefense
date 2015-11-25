@@ -12,6 +12,11 @@ public class GameManager : Singleton<GameManager>
     public GameObject Terrain;
     public bool WaveIsOver;
     public bool Win;
+    public int HP { get; private set; }
+    public int Score { get; private set; }
+    public int BestScore { get; private set; }
+
+    private static readonly string BestScoreKey = "BestScore";
 
     // Weapons
     private bool _placing_weapon;
@@ -31,26 +36,35 @@ public class GameManager : Singleton<GameManager>
         SpawnManager1 = GetComponent<Spawn>();
         _weapons_list = Resources.LoadAll<GameObject>("Prefabs/Weapons");
         _ennemy_list = Resources.LoadAll<GameObject>("Prefabs/Enemies");
-        _weapons = new ArrayList();
         _wave = 1;
+        _weapons = new ArrayList();
         _weapon_selected = false;
         _placing_weapon = false;
         _main_camera = null;
-        WaveIsOver = false;
-        Win = false;
-        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
+        SpawnManager1.Init(_ennemy_list[0]);
+        BestScore = -1;
+
         InitGame();
     }
 	
 	// Update is called once per frame
 	void Update()
     {
-	    if(WaveIsOver)
+	    if(IsOver())
         {
             if (Win)
             {
                 _wave++;
                 SpawnManager1.NewWave(_wave);
+            }
+            else
+            {
+                transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = true;
+                transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = false;
+                transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
+
+                if (Score > BestScore)
+                    PlayerPrefs.SetInt(BestScoreKey, Score);
             }
         }
 
@@ -104,6 +118,11 @@ public class GameManager : Singleton<GameManager>
         }
 	}
 
+    private bool IsOver()
+    {
+        return SpawnManager1.NbEnemies == 0;
+    }
+
     public void ChangeCamera()
     {
         if (_temp_weapon != null)
@@ -128,11 +147,34 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    private void InitGame()
+    public void InitGame()
     {
-        //NewWeapon(3, new Vector3(18.86f, 0f, 31.49f));
-        SpawnManager1.Init(_ennemy_list[0]);
+        WaveIsOver = false;
+        Win = false;
+        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
+        if (PlayerPrefs.HasKey(BestScoreKey))
+            BestScore = PlayerPrefs.GetInt(BestScoreKey);
+
+        _weapons.Clear();
+
+        transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = false;
+        transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = true;
+        HP = 100;
+        Score = 0;
+        _wave = 0;
+
         SpawnManager1.NewWave(_wave);
+
+        RefreshUI();
+    }
+
+    private void RefreshUI()
+    {
+        string best_score = BestScore >= 0 ? string.Format("Meilleur score : {0}", BestScore) : "";
+        transform.FindChild("Canvas").FindChild("BestScore").GetComponent<Text>().text = best_score;
+        transform.FindChild("Canvas").FindChild("HP").GetComponent<Text>().text = string.Format("HP : {0}", HP);
+        transform.FindChild("Canvas").FindChild("Score").GetComponent<Text>().text = string.Format("Score : {0}", Score);
+        transform.FindChild("Canvas").FindChild("Wave").GetComponent<Text>().text = string.Format("Vague : {0}", _wave);
     }
 
     private RaycastHit GetMouseRayPos()
@@ -148,9 +190,29 @@ public class GameManager : Singleton<GameManager>
         return default(RaycastHit);
     }
 
+    public void ReceiveDamage(int dmg, GameObject enemy)
+    {
+        HP -= dmg;
+
+        if (enemy.GetComponent<Little1>() != null)
+            SpawnManager1.SetDead(enemy);
+
+        RefreshUI();
+
+        if (HP <= 0)
+        {
+            Win = false;
+            WaveIsOver = true;
+        }
+    }
+
     public void SetDead(GameObject enemy)
     {
-        if(enemy.GetComponent<Little1>() != null)
+        Score += enemy.GetComponent<Enemy>().Points;
+
+        RefreshUI();
+
+        if (enemy.GetComponent<Little1>() != null)
             SpawnManager1.SetDead(enemy);
 
         for(int i = 0; i < _weapons.Count; i++)
