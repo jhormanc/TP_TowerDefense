@@ -86,7 +86,21 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos()
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Bullet")
+        {
+            GameObject bullet = collision.gameObject;
+            if (!bullet.GetComponent<Ammo>().RayShoot)
+            {
+                ReceiveDamage(bullet.GetComponent<Ammo>().Source.GetComponent<Weapon>().CalculateDamage(bullet, this));
+                bullet.GetComponent<Ammo>().SpawnEffect(collision.contacts[0].point, collision.transform.rotation);
+            }
+            bullet.SetActive(false);
+        }
+    }
+
+        void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(_last_pos, transform.position);

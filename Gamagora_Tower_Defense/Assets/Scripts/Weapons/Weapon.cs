@@ -141,6 +141,7 @@ public class Weapon : MonoBehaviour
         if (fire_bullet)
         {
             bullet.SetActive(true);
+            bullet.GetComponent<Ammo>().Source = gameObject;
             bullet.transform.position = shoot_point.position;
             bullet.transform.rotation = shoot_point.rotation;
             bullet.transform.forward = shoot_point.forward;
@@ -160,6 +161,7 @@ public class Weapon : MonoBehaviour
                 {
                     float dmg = CalculateDamage(bullet, enemy);
                     enemy.ReceiveDamage(dmg);
+                    bullet.GetComponent<Ammo>().SpawnEffect(hit_info.point, hit_info.transform.rotation);
                 }
             }
         }
@@ -185,9 +187,14 @@ public class Weapon : MonoBehaviour
     {
         if (Auto)
         {
+            float speed = 1f;
+            Transform t = GetTarget();
+
+            if (t != null)
+                speed = t.gameObject.GetComponent<Enemy>().Speed;
+
             if (target == Vector3.zero)
             {
-                Transform t = GetTarget();
                 if(t != null)
                     target = t.position;
             }
@@ -201,7 +208,7 @@ public class Weapon : MonoBehaviour
                 _lookRotation = Quaternion.LookRotation(_direction);
 
                 // Rotate us over time according to speed until we are in the required rotation
-                float speed = 3f;
+                speed = speed * 10f;
 
                 if (Quaternion.Angle(tourelle.rotation, _lookRotation) < 5f)
                     speed *= 5f;

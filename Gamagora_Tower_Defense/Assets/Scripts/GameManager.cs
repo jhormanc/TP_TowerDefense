@@ -150,7 +150,7 @@ public class GameManager : Singleton<GameManager>
     public void InitGame()
     {
         WaveIsOver = false;
-        Win = false;
+        Win = true;
         transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
         if (PlayerPrefs.HasKey(BestScoreKey))
             BestScore = PlayerPrefs.GetInt(BestScoreKey);
@@ -197,13 +197,13 @@ public class GameManager : Singleton<GameManager>
         if (enemy.GetComponent<Little1>() != null)
             SpawnManager1.SetDead(enemy);
 
-        RefreshUI();
-
         if (HP <= 0)
         {
             Win = false;
             WaveIsOver = true;
         }
+
+        RefreshUI();
     }
 
     public void SetDead(GameObject enemy)

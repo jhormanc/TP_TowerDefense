@@ -29,9 +29,6 @@ public class Tourelle : Weapon
         {
             bullet = _bullets.GetNextObj();
             bullet.GetComponent<TrailRenderer>().enabled = true;
-            Transform target = GetTarget();
-            if(target != null)
-                bullet.GetComponent<Bullet>().Target = target.gameObject;
         }
 
         StartCoroutine(Fire(canon.FindChild("Shoot"), bullet, true));
