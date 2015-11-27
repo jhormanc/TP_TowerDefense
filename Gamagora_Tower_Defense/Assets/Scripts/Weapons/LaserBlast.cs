@@ -12,7 +12,15 @@ public class LaserBlast : Weapon
     {
         Transform shoot = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
         GameObject bullet = _bullets.GetNextObj();
-        //bullet.transform.FindChild("Base").gameObject.SetActive(true);
+        
+        StartCoroutine(WaitEffectFire(shoot, bullet, false));
+    }
+
+    private IEnumerator WaitEffectFire(Transform shoot, GameObject bullet, bool ray_shoot)
+    {
+        _allowFire = false;
+        yield return new WaitForSeconds(0.4f);
+        bullet.SetActive(true);
         StartCoroutine(Fire(shoot, bullet, false));
     }
 
@@ -44,7 +52,6 @@ public class LaserBlast : Weapon
         }
 
         Move(tourelle, head, null, target_pos);
-        
     }
 
     protected override void EmitParticle(bool emit)
@@ -54,6 +61,8 @@ public class LaserBlast : Weapon
         p.GetComponent<ParticleSystem>().enableEmission = emit;
 
         if (emit)
-            p.GetComponent<ParticleSystem>().Emit(1);
+            p.GetComponent<ParticleSystem>().Play();
+        else
+            p.GetComponent<ParticleSystem>().Stop();
     }
 }

@@ -29,6 +29,7 @@ public class Shotgun : Weapon
         Transform canon = GetCannon();
         Transform shoot = canon.FindChild("Shoot");
         GameObject bullet = _bullets.GetNextObj();
+        bullet.SetActive(true);
 
         canon.Translate(new Vector3(0f, 0f, -0.2f), Space.Self);
         StartCoroutine(Fire(shoot, bullet, false));      
@@ -59,7 +60,22 @@ public class Shotgun : Weapon
         else
             _lerp_pos2 = 0f;
 
-        Move(tourelle, head);
+        Transform target = GetTarget();
+        Vector3 target_pos = Vector3.zero;
+
+        if (target != null)
+        {
+            target_pos = target.position;
+
+            target_pos += (target.position - head.position).magnitude
+                             * target.forward
+                             * target.GetComponent<Enemy>().Speed
+                             / (BulletSpeed * 0.15f);
+
+            Debug.DrawLine(target_pos, target_pos + target.forward);
+        }
+
+        Move(tourelle, head, null, target_pos);
     }
 
     protected override void EmitParticle(bool emit)

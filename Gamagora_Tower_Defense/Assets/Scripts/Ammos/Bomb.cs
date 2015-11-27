@@ -8,10 +8,15 @@ public class Bomb : Ammo
 
     }
 
-    protected void OnTriggerEnter(Collider other)
+    protected override void Awake()
     {
+        base.Awake();
+
 
     }
 
-   
+    protected void OnTriggerEnter(Collider other)
+    {
+        
+    }
 }

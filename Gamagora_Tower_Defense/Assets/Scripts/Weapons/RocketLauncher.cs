@@ -27,8 +27,8 @@ public class RocketLauncher : Weapon
         StartCoroutine(Fire(shoot, bullet, false));
 
         _selected_cannon++;
-        if (_selected_cannon > 5)
-            _selected_cannon = 0;
+        if (_selected_cannon > 6)
+            _selected_cannon = 1;
     }
 
     protected override void EmitParticle(bool emit)
@@ -44,29 +44,7 @@ public class RocketLauncher : Weapon
     private Transform GetCannon()
     {
         Transform head = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head");
-        Transform cannon = null;
-
-        switch(_selected_cannon)
-        {
-            case 0:
-                cannon = head.FindChild("Cannon_1");
-                break;
-            case 1:
-                cannon = head.FindChild("Cannon_2");
-                break;
-            case 2:
-                cannon = head.FindChild("Cannon_3");
-                break;
-            case 3:
-                cannon = head.FindChild("Cannon_4");
-                break;
-            case 4:
-                cannon = head.FindChild("Cannon_5");
-                break;
-            case 5:
-                cannon = head.FindChild("Cannon_6");
-                break;
-        }
+        Transform cannon = head.FindChild(string.Format("Cannon_{0}", _selected_cannon));
 
         return cannon;
     }

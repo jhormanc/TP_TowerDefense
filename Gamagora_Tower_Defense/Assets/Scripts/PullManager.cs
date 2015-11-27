@@ -53,7 +53,6 @@ public class PullManager : ScriptableObject
         SetNextObj();
         GameObject obj = GetCurrentObj();
         UnityEditor.PrefabUtility.ResetToPrefabState(obj);
-        obj.SetActive(true);
         return obj;
     }
 

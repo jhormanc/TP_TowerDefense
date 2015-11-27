@@ -121,6 +121,9 @@
  <Reference Include="Assembly-UnityScript">
  <HintPath>D:/Users/jhormanc/Documents/GitHub/TP_TowerDefense/Gamagora_Tower_Defense/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
  </Reference>
+ <Reference Include="UnityEngine.Advertisements">
+ <HintPath>D:/Install/Unity5/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>D:/Install/Unity5/Editor/Data/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>
@@ -135,6 +138,9 @@
  </Reference>
  <Reference Include="UnityEditor.Networking">
  <HintPath>D:/Install/Unity5/Editor/Data/UnityExtensions/Unity/Networking/Editor/UnityEditor.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>D:/Install/Unity5/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.Graphs">
  <HintPath>D:/Install/Unity5/Editor/Data/Managed/UnityEditor.Graphs.dll</HintPath>

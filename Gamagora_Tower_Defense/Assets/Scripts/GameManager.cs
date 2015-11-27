@@ -10,18 +10,22 @@ public class GameManager : Singleton<GameManager>
 
     public Spawn SpawnManager1;
     public GameObject Terrain;
+
+    // Player
     public bool WaveIsOver;
     public bool Win;
     public int HP { get; private set; }
     public int Score { get; private set; }
     public int BestScore { get; private set; }
+    public int Money { get; private set; }
+    public int BaseMoney;
 
     private static readonly string BestScoreKey = "BestScore";
 
     // Weapons
     private bool _placing_weapon;
     private static GameObject[] _weapons_list;
-    private ArrayList _weapons;
+    private ArrayList _weapons; // TODO Weapons PullManager
     private GameObject _temp_weapon;
     bool _weapon_selected;
     private Camera _main_camera; // Tourelle automatique ou manuelle
@@ -66,6 +70,8 @@ public class GameManager : Singleton<GameManager>
                 if (Score > BestScore)
                     PlayerPrefs.SetInt(BestScoreKey, Score);
             }
+
+            RefreshUI();
         }
 
         if (_main_camera == null)
@@ -81,42 +87,57 @@ public class GameManager : Singleton<GameManager>
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    //_temp_weapon.GetComponent<BoxCollider>().enabled = true;
                     _temp_weapon.GetComponent<SphereCollider>().enabled = true;
                     _temp_weapon.GetComponent<Rigidbody>().isKinematic = false;
                     _temp_weapon.GetComponent<Weapon>().enabled = true;
                     _weapons.Add(_temp_weapon);
+                    Money -= _temp_weapon.GetComponent<Weapon>().Price;
+                    RefreshUI();
                     _placing_weapon = false;
+                    _temp_weapon = null;
                 }
                 else if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
                 {
                     _placing_weapon = false;
                     Destroy(_temp_weapon);
+                    _temp_weapon = null;
                 }
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                if (pos.collider != null)
+                if (pos.collider.tag == "Weapon")
                 {
-                    if (pos.collider.tag == "Weapon")
+                    GameObject weapon = pos.collider.gameObject;
+                    if (weapon != _temp_weapon)
                     {
-                        if (pos.collider.gameObject != _temp_weapon)
-                            pos.collider.gameObject.transform.FindChild("SelectionWeapon").GetComponent<ParticleSystem>().Emit(1);
+                        if (_temp_weapon != null)
+                            SetColor(_temp_weapon);
 
-                        _temp_weapon = pos.collider.gameObject;
+                        _temp_weapon = weapon;
+                        _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+                        _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetFloat("_Emission", 2f);
+                        _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.white * _temp_weapon.GetComponent<Weapon>().GetSelectedIntensity());
                         _weapon_selected = true;
-                        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = true;
+                        RefreshUI();
                     }
-                    else if (_weapon_selected && !EventSystem.current.IsPointerOverGameObject())
-                    {
-                        _temp_weapon = null;
-                        _weapon_selected = false;
-                        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
-                    }
+                }
+                else if (_weapon_selected && !EventSystem.current.IsPointerOverGameObject())
+                {
+                    SetColor(_temp_weapon);
+                    _temp_weapon = null;
+                    _weapon_selected = false;
+                    RefreshUI();
                 }
             }
         }
 	}
+
+    public void SetColor(GameObject weapon)
+    {
+        weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_Color", _temp_weapon.GetComponent<Weapon>().GetColor());
+        weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetFloat("_Emission", 2f);
+        weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
+    }
 
     private bool IsOver()
     {
@@ -136,7 +157,7 @@ public class GameManager : Singleton<GameManager>
 
             _main_camera.enabled = !auto;
 
-            _temp_weapon.transform.FindChild("Camera").GetComponent<Camera>().enabled = auto; // .FindChild("Base").FindChild("Tourelle")
+            _temp_weapon.transform.FindChild("Camera").GetComponent<Camera>().enabled = auto;
 
             transform.FindChild("Canvas").FindChild("ButtonCamera").FindChild("Text").GetComponent<Text>().text = text_button;
 
@@ -149,6 +170,7 @@ public class GameManager : Singleton<GameManager>
 
     public void InitGame()
     {
+        Money = BaseMoney;
         WaveIsOver = false;
         Win = true;
         transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
@@ -158,7 +180,7 @@ public class GameManager : Singleton<GameManager>
         _weapons.Clear();
 
         transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = false;
-        transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = true;
+
         HP = 100;
         Score = 0;
         _wave = 0;
@@ -171,10 +193,18 @@ public class GameManager : Singleton<GameManager>
     private void RefreshUI()
     {
         string best_score = BestScore >= 0 ? string.Format("Meilleur score : {0}", BestScore) : "";
+        transform.FindChild("Canvas").FindChild("Money").GetComponent<Text>().text = string.Format("Argent : {0}", Money);
         transform.FindChild("Canvas").FindChild("BestScore").GetComponent<Text>().text = best_score;
         transform.FindChild("Canvas").FindChild("HP").GetComponent<Text>().text = string.Format("HP : {0}", HP);
         transform.FindChild("Canvas").FindChild("Score").GetComponent<Text>().text = string.Format("Score : {0}", Score);
         transform.FindChild("Canvas").FindChild("Wave").GetComponent<Text>().text = string.Format("Vague : {0}", _wave);
+
+        transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = Money >= _weapons_list[1].GetComponent<Weapon>().Price;
+        transform.FindChild("Canvas").FindChild("ButtonShotgun").GetComponent<Button>().interactable = Money >= _weapons_list[5].GetComponent<Weapon>().Price;
+        transform.FindChild("Canvas").FindChild("ButtonFlamethrower").GetComponent<Button>().interactable = Money >= _weapons_list[0].GetComponent<Weapon>().Price;
+        transform.FindChild("Canvas").FindChild("ButtonLaserBlast").GetComponent<Button>().interactable = Money >= _weapons_list[3].GetComponent<Weapon>().Price;
+
+        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = _weapon_selected;
     }
 
     private RaycastHit GetMouseRayPos()
@@ -209,6 +239,7 @@ public class GameManager : Singleton<GameManager>
     public void SetDead(GameObject enemy)
     {
         Score += enemy.GetComponent<Enemy>().Points;
+        Money += enemy.GetComponent<Enemy>().Points;
 
         RefreshUI();
 
@@ -223,23 +254,18 @@ public class GameManager : Singleton<GameManager>
 
     public void NewWeapon(int nb)
     {
-        if (_placing_weapon == false)
+        if (_placing_weapon == false && Money >=_weapons_list[nb].GetComponent<Weapon>().Price)
         {
             _placing_weapon = true;
             RaycastHit pos = GetMouseRayPos();
+            if (_temp_weapon != null)
+                SetColor(_temp_weapon);
             _temp_weapon = (GameObject)Instantiate(_weapons_list[nb], pos.point, Quaternion.Euler(0, 0, 0));
+            _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
             UnityEditor.PrefabUtility.ResetToPrefabState(_temp_weapon);
-            //_temp_weapon.GetComponent<BoxCollider>().enabled = false;
             _temp_weapon.GetComponent<SphereCollider>().enabled = false;
-            //_temp_weapon.GetComponent<Rigidbody>().isKinematic = true;
             _temp_weapon.GetComponent<Weapon>().enabled = false;
             _temp_weapon.SetActive(true);
         }
     }
-
-    //public void NewWeapon(int nb, Vector3 pos)
-    //{
-    //    GameObject weapon = (GameObject)Instantiate(_weapons_list[nb], pos, Quaternion.Euler(0, 0, 0));
-    //    _weapons.Add(weapon);
-    //}
 }

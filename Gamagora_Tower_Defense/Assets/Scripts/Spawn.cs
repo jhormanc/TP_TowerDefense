@@ -11,12 +11,13 @@ public class Spawn : MonoBehaviour
 
     private int SpawnSize = 10;
     private PullManager _spawn;
+    private GameObject _start, _end;
 
     // Use this for initialization
     void Awake()
     {
-        Instantiate<GameObject>(StartPoint);
-        Instantiate<GameObject>(EndPoint);
+        _start =  (GameObject)Instantiate(StartPoint, StartPoint.transform.position, StartPoint.transform.rotation);
+        _end = (GameObject)Instantiate(EndPoint, EndPoint.transform.position, EndPoint.transform.rotation);
         transform.position = StartPoint.transform.position;
         _spawn = null;
         NbEnemies = 0;
@@ -48,7 +49,9 @@ public class Spawn : MonoBehaviour
         for (int i = 0; i < SpawnSize; i++)
         {
             GameObject e = _spawn.GetNextObj();
-            e.GetComponent<Enemy>().Target = EndPoint;
+            e.GetComponent<Enemy>().Target = _end;
+            e.GetComponent<Enemy>().Origin = _start;
+            e.SetActive(true);
 
             yield return new WaitForSeconds(SpawnDelay);
         }

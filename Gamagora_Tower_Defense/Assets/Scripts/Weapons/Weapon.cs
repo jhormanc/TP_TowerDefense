@@ -26,6 +26,8 @@ public class Weapon : MonoBehaviour
 
     public enum AimType { First, Last, Strongest };
 
+    protected GameManager Manager;
+
     // Values that will be set in the Inspector
     public float Range;
     public GameObject Bullet;
@@ -35,6 +37,10 @@ public class Weapon : MonoBehaviour
     public int BulletsSize;
     public bool Auto; // Visée auto ou manuelle
     public AimType Aim;
+    public int Level { get; private set; } // Niveaux de la tourelle
+    public int LevelUpPrice; // Prix pour lvl up
+    public int Price; // Prix d'achat
+    public float SelectedIntensity;
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
@@ -62,6 +68,7 @@ public class Weapon : MonoBehaviour
         _fire = false;
         _allowFire = true;
         Auto = true;
+        Level = 1;
         _targets = new ArrayList();
         GetComponent<SphereCollider>().radius = Range;
         FireRate = Mathf.Abs(FireRate);
@@ -150,8 +157,11 @@ public class Weapon : MonoBehaviour
         Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon").FindChild("Shoot");
         GameObject bullet = null;
 
-        if(_bullets != null)
+        if (_bullets != null)
+        {
             bullet = _bullets.GetNextObj();
+            bullet.SetActive(true);
+        }
 
         StartCoroutine(Fire(shoot_point, bullet, true));
     }
@@ -201,14 +211,12 @@ public class Weapon : MonoBehaviour
         _allowFire = true;
     }
 
-    public virtual float CalculateDamage(GameObject bullet, Enemy enemy)
+    public virtual float CalculateDamage(GameObject bullet, Enemy enemy, bool explode = false)
     {
-        float ret = 0f;
+        float ret = 1f;
 
         if (bullet != null)
-            ret = bullet.GetComponent<Ammo>().Degats;
-        else
-            ret = 1f;
+            ret = !explode ? bullet.GetComponent<Ammo>().Degats : bullet.GetComponent<Ammo>().DegatsExplode;
 
         return ret * Degats;
     }
@@ -302,6 +310,14 @@ public class Weapon : MonoBehaviour
         Move(tourelle, null, look);
     }
 
+    protected virtual void LvlUp()
+    {
+        Degats *= 1.2f;
+        Range *= 1.2f;
+        Level++;
+        Manager.SetColor(gameObject);
+    }
+
     protected virtual void EmitParticle(bool emit)
     {
         Transform p = transform.FindChild("Base").FindChild("Tourelle").FindChild("Particle");
@@ -315,6 +331,46 @@ public class Weapon : MonoBehaviour
         if (_targets.Count > 0 && _targets[0] != null)
             return ((GameObject)_targets[0]).transform;
         return null;
+    }
+
+    public Color GetColor()
+    {
+        float i = Level - 1;
+        float red, green, blue;
+
+        if (Level < 10)
+        {
+            red = 0f;
+            green = 0.8f - i * 0.1f;
+            blue = i * 0.1f;
+        }
+        else if (Level < 19)
+        {
+            i = i - 10;
+            red = i * 0.1f;
+            green = 0f;
+            blue = 0.8f - i * 0.1f;
+        }
+        else if(Level < 29)
+        {
+            i = i - 20;
+            red = 0.8f - i * 0.1f;
+            green = 0f;
+            blue = 0f;
+        }
+        else
+        {
+            red = 0f;
+            green = 0f;
+            blue = 0f;
+        }
+
+        return new Color(red, green, blue);
+    }
+
+    public float GetSelectedIntensity()
+    {
+        return SelectedIntensity;
     }
 
     public void RemoveTarget(GameObject enemy)

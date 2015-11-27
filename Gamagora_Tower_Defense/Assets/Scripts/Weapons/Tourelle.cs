@@ -29,6 +29,7 @@ public class Tourelle : Weapon
         {
             bullet = _bullets.GetNextObj();
             bullet.GetComponent<TrailRenderer>().enabled = true;
+            bullet.SetActive(true);
         }
 
         StartCoroutine(Fire(canon.FindChild("Shoot"), bullet, true));
@@ -43,5 +44,11 @@ public class Tourelle : Weapon
 
         if(bullet != null)
             bullet.GetComponent<TrailRenderer>().enabled = false;
+    }
+
+    protected override void LvlUp()
+    {
+        FireRate *= 1.5f;
+        base.LvlUp();
     }
 }

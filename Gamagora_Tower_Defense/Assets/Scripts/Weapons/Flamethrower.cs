@@ -1,11 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Flamethrower : Weapon {
+public class Flamethrower : Weapon
+{
 
     public Flamethrower() : base()
     {
 
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle").GetComponent<ParticleDamage>().Source = gameObject;
     }
 
     protected override void Move()
@@ -14,7 +21,30 @@ public class Flamethrower : Weapon {
         Transform head = tourelle.FindChild("Head");
         Transform cannon = head.FindChild("Cannon");
 
-        Move(tourelle, head, cannon);
+        Transform target = GetTarget();
+        Vector3 target_pos = Vector3.zero;
+
+        if (target != null)
+        {
+            target_pos = target.position;
+
+            target_pos += (target.position - head.position).magnitude
+                             * target.forward
+                             * target.GetComponent<Enemy>().Speed
+                             / (transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle").GetComponent<ParticleDamage>().GetSpeed() * 3f);
+
+            Debug.DrawLine(target_pos, target_pos + target.forward);
+        }
+
+        Move(tourelle, head, cannon, target_pos);
+    }
+
+    protected override void Fire()
+    {
+        Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
+
+
+        StartCoroutine(Fire(shoot_point, null, false));
     }
 
     protected override void EmitParticle(bool emit)
@@ -24,5 +54,11 @@ public class Flamethrower : Weapon {
         p.GetComponent<ParticleSystem>().enableEmission = emit;
         p.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
         p.FindChild("Sparkles").GetComponent<ParticleSystem>().enableEmission = emit;
+
+        if (emit)
+            p.GetComponent<ParticleSystem>().Play();
+        else
+            p.GetComponent<ParticleSystem>().Stop();
+
     }
 }

@@ -8,6 +8,10 @@ public class Enemy : MonoBehaviour
     public int Degats;
     public int Points;
     public GameObject Target;
+    public GameObject Origin;
+
+    // Vie
+    protected float _health;
 
     // Déplacements
     protected bool _move;
@@ -24,18 +28,28 @@ public class Enemy : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        Target = null;
         _move = true;
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
+        //transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
         _last_pos = transform.position;
+        _health = HP;
 
         Manager = GameManager.Instance;
     }
-	
-	// Update is called once per frame
-	void Update()
+
+    void OnEnable()
     {
-        if (HP < 0f)
+        _health = HP;
+        transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
+        transform.FindChild("Particle").gameObject.SetActive(true);
+        transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
+        if (Origin != null)
+            transform.position = Origin.transform.position;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (_health < 0f)
         {
             StartCoroutine(Die());
         }
@@ -48,21 +62,20 @@ public class Enemy : MonoBehaviour
 
     public void ReceiveDamage(float damage)
     {
-        HP -= damage;
+        _health -= damage;
     }
 
     public bool IsDead()
     {
-        return HP < 0f;
+        return _health < 0f;
     }
 
     protected IEnumerator Die()
     {
-        transform.FindChild("Particle").GetComponent<ParticleSystem>().enableEmission = false;
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = true;
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().Emit(10);
-        yield return new WaitForSeconds(0.25f);
+        transform.FindChild("Particle").gameObject.SetActive(false);
+        transform.FindChild("Flash").GetComponent<ParticleSystem>().Play();
+        yield return new WaitForSeconds(0.3f);
         Manager.SetDead(gameObject);
     }
 
@@ -93,7 +106,7 @@ public class Enemy : MonoBehaviour
 
     public float GetStrength()
     {
-        return HP * Degats;
+        return _health * Degats;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -110,18 +123,10 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void OnParticleCollision(GameObject other)
-    {
-        // TODO Test Collisions
-        print(other.tag);
-        //if (other && other.tag == "Bullet")
-        //{
-        //    Enemy enemy = other.gameObject.GetComponent<Enemy>();
-        //    float degats = transform.parent.gameObject.GetComponent<Weapon>().CalculateDamage(gameObject, enemy);
-        //    enemy.ReceiveDamage(degats);
-        //    print(degats);
-        //}
-    }
+    ////void OnParticleCollision(GameObject other)
+    ////{
+
+    ////}
 
     void OnDrawGizmos()
     {

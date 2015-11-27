@@ -12,4 +12,15 @@ public class Bullet : Ammo
     {
         GetComponent<TrailRenderer>().enabled = false;
     }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        GetComponent<TrailRenderer>().enabled = true;
+    }
+
+    protected void OnDisable()
+    {
+        GetComponent<TrailRenderer>().enabled = false;
+    }
 }
