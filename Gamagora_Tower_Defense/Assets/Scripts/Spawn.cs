@@ -8,8 +8,9 @@ public class Spawn : MonoBehaviour
     public float SpawnDelay;
 
     public int NbEnemies { get; private set; }
+    public bool SpawnFinished { get; private set; }
 
-    private int SpawnSize = 10;
+    public int SpawnSize { get; private set; }
     private PullManager _spawn;
     private GameObject _start, _end;
 
@@ -20,11 +21,13 @@ public class Spawn : MonoBehaviour
         _end = (GameObject)Instantiate(EndPoint, EndPoint.transform.position, EndPoint.transform.rotation);
         transform.position = StartPoint.transform.position;
         _spawn = null;
+        SpawnFinished = false;
         NbEnemies = 0;
     }
 
-    public void Init(GameObject enemy)
+    public void Init(GameObject enemy, int size)
     {
+        SpawnSize = size;
         if (enemy != null)
         {
             _spawn = ScriptableObject.CreateInstance<PullManager>();
@@ -34,6 +37,7 @@ public class Spawn : MonoBehaviour
 
     public void NewWave(int wave)
     {
+        SpawnFinished = false;
         StartCoroutine(SpawnEnnemis(wave));
     }
 
@@ -55,5 +59,7 @@ public class Spawn : MonoBehaviour
 
             yield return new WaitForSeconds(SpawnDelay);
         }
+
+        SpawnFinished = true;
     }
 }

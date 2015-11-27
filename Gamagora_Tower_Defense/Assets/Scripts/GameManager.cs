@@ -20,6 +20,7 @@ public class GameManager : Singleton<GameManager>
     public int Money { get; private set; }
     public int BaseMoney;
 
+    private bool _waveIsStarted;
     private static readonly string BestScoreKey = "BestScore";
 
     // Weapons
@@ -31,8 +32,10 @@ public class GameManager : Singleton<GameManager>
     private Camera _main_camera; // Tourelle automatique ou manuelle
 
     // Enemies
+    public int InitialEnemySize;
     private static GameObject[] _ennemy_list;
     private int _wave;
+    
 
     // Use this for initialization
     void Awake()
@@ -44,8 +47,9 @@ public class GameManager : Singleton<GameManager>
         _weapons = new ArrayList();
         _weapon_selected = false;
         _placing_weapon = false;
+        _waveIsStarted = false;
         _main_camera = null;
-        SpawnManager1.Init(_ennemy_list[0]);
+        SpawnManager1.Init(_ennemy_list[0], InitialEnemySize);
         BestScore = -1;
 
         InitGame();
@@ -69,6 +73,8 @@ public class GameManager : Singleton<GameManager>
 
                 if (Score > BestScore)
                     PlayerPrefs.SetInt(BestScoreKey, Score);
+
+                _waveIsStarted = false;
             }
 
             RefreshUI();
@@ -141,7 +147,7 @@ public class GameManager : Singleton<GameManager>
 
     private bool IsOver()
     {
-        return SpawnManager1.NbEnemies == 0;
+        return  _waveIsStarted && SpawnManager1.NbEnemies == 0 && SpawnManager1.SpawnFinished;
     }
 
     public void ChangeCamera()
@@ -186,6 +192,7 @@ public class GameManager : Singleton<GameManager>
         _wave = 0;
 
         SpawnManager1.NewWave(_wave);
+        _waveIsStarted = true;
 
         RefreshUI();
     }

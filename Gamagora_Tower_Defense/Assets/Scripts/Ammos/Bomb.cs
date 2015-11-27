@@ -11,12 +11,10 @@ public class Bomb : Ammo
     protected override void Awake()
     {
         base.Awake();
-
-
     }
 
-    protected void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        
+        print(other.tag);
     }
 }

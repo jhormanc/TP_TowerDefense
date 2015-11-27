@@ -7,6 +7,7 @@ public class Ammo : MonoBehaviour
     public GameObject Source;
     public bool RayShoot;
     public GameObject HitEffect;
+    // Time
     public float DelayAfterHit;
     // Projectiles explosifs
     public float ExplosionRadius;
@@ -27,14 +28,20 @@ public class Ammo : MonoBehaviour
 	
 	}
 
+    protected virtual void Disable()
+    {
+        SpawnEffect(transform.position, transform.rotation);
+    }
+
     protected virtual void OnEnable()
     {
         transform.FindChild("Base").gameObject.SetActive(true);
+        GetComponent<Collider>().enabled = true;
     }
 
-    public virtual void SpawnEffect(Vector3 pos, Quaternion rot)
+    public virtual void SpawnEffect(Vector3 pos, Quaternion rot, bool stop = true)
     {
-        if (_hit_effect != null)
+        if (_hit_effect != null && !_hit_effect.GetComponent<ParticleSystem>().isPlaying)
         {
             _hit_effect.transform.position = pos;
             _hit_effect.transform.rotation = rot;
@@ -42,8 +49,11 @@ public class Ammo : MonoBehaviour
             if (ExplosionRadius > 0f)
                 Explode();
         }
+        GetComponent<Collider>().enabled = false;
         transform.FindChild("Base").gameObject.SetActive(false);
-        StartCoroutine(Stop());
+
+        if(stop)
+            StartCoroutine(Stop());
     }
 
     IEnumerator Stop()

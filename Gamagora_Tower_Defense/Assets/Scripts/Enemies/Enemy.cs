@@ -4,6 +4,7 @@ using System.Collections;
 public class Enemy : MonoBehaviour
 {
     public float HP;
+    public bool Dead { get; private set; }
     public float Speed;
     public int Degats;
     public int Points;
@@ -32,13 +33,14 @@ public class Enemy : MonoBehaviour
         //transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
         _last_pos = transform.position;
         _health = HP;
-
+        Dead = false;
         Manager = GameManager.Instance;
     }
 
     void OnEnable()
     {
         _health = HP;
+        Dead = false;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Particle").gameObject.SetActive(true);
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
@@ -72,11 +74,15 @@ public class Enemy : MonoBehaviour
 
     protected IEnumerator Die()
     {
-        transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
-        transform.FindChild("Particle").gameObject.SetActive(false);
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().Play();
-        yield return new WaitForSeconds(0.3f);
-        Manager.SetDead(gameObject);
+        if (!Dead)
+        {
+            transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
+            transform.FindChild("Particle").gameObject.SetActive(false);
+            transform.FindChild("Flash").GetComponent<ParticleSystem>().Play();
+            yield return new WaitForSeconds(0.3f);
+            Manager.SetDead(gameObject);
+            Dead = true;
+        }
     }
 
     protected void Move()

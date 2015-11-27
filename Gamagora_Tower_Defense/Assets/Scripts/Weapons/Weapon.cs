@@ -180,7 +180,6 @@ public class Weapon : MonoBehaviour
 
         if (fire_bullet)
         {
-            bullet.SetActive(true);
             bullet.GetComponent<Ammo>().Source = gameObject;
             bullet.transform.position = shoot_point.position;
             bullet.transform.rotation = shoot_point.rotation;
@@ -188,6 +187,7 @@ public class Weapon : MonoBehaviour
             bullet.GetComponent<Rigidbody>().velocity = shoot_point.forward;
             bullet.GetComponent<Rigidbody>().AddForce(Vector3.zero);
             bullet.GetComponent<Rigidbody>().AddForce(shoot_point.forward * BulletSpeed);
+            bullet.SetActive(true);
         }
 
         if (ray_shoot)
@@ -326,7 +326,7 @@ public class Weapon : MonoBehaviour
         p.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
     }
 
-    protected Transform GetTarget()
+    public Transform GetTarget()
     {
         if (_targets.Count > 0 && _targets[0] != null)
             return ((GameObject)_targets[0]).transform;
