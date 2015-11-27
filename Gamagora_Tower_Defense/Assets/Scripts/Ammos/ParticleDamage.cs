@@ -4,6 +4,7 @@ using System.Collections;
 public class ParticleDamage : MonoBehaviour
 {
     public GameObject Source;
+    public GameObject Bullet;
 
 	// Use this for initialization
 	void Awake()
@@ -22,7 +23,7 @@ public class ParticleDamage : MonoBehaviour
         if(other.tag == "Enemy")
         {
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
-            enemy.ReceiveDamage(Source.GetComponent<Weapon>().CalculateDamage(null, enemy));
+            enemy.ReceiveDamage(Source.GetComponent<Weapon>().CalculateDamage(Bullet, enemy));
         }
     }
 

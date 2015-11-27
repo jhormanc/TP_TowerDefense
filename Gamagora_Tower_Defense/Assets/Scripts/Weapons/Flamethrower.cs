@@ -26,12 +26,13 @@ public class Flamethrower : Weapon
 
         if (target != null)
         {
+            float fire_speed = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle").GetComponent<ParticleDamage>().GetSpeed();
             target_pos = target.position;
 
             target_pos += (target.position - head.position).magnitude
                              * target.forward
                              * target.GetComponent<Enemy>().Speed
-                             / (transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle").GetComponent<ParticleDamage>().GetSpeed() * 3f);
+                             / (fire_speed * 3f);
 
             Debug.DrawLine(target_pos, target_pos + target.forward);
         }

@@ -10,8 +10,8 @@ public class Rocket : Ammo
     private float _time;
     private bool _targeting = false;
     private float _lerp;
-    private Quaternion _lookRotation;
     private Vector3 _direction;
+    private Vector3 _delta;
     private GameObject _targetting_effect;
 
     public Rocket() : base()
@@ -32,40 +32,25 @@ public class Rocket : Ammo
 
     protected override void OnEnable()
     {
-        base.OnEnable();
         _time = 0f;
         _lerp = 5f;
         _targeting = false;
         Target = null;
-        _targetting_effect.GetComponent<ParticleSystem>().Stop();
+        base.OnEnable();
     }
 
     protected override void Update()
     {
-        if (_targeting)
+        _time += Time.deltaTime;
+
+        if (!_targeting)
         {
-            float speed = 7f;
-
-            Transform new_target = Source.GetComponent<Weapon>().GetTarget();
-
-            if (Target == null && new_target != null)
-                _targetting_effect.GetComponent<ParticleSystem>().Play();
-            else if (Target != null && new_target == null)
-                _targetting_effect.GetComponent<ParticleSystem>().Stop();
-
-            Target = new_target;
-
-            if (Target != null)
+            if (_time > SecondsToTarget)
             {
-                speed *= Target.gameObject.GetComponent<Enemy>().Speed;
-                _direction = (Target.position - transform.position).normalized;
-                _lookRotation = Quaternion.LookRotation(_direction);
-                transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, Time.deltaTime * _lerp);
+                _targeting = true;
+                Target = Source.GetComponent<Weapon>().GetTarget();
+                _targetting_effect.GetComponent<ParticleSystem>().Play();
             }
-            else
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(transform.forward), Time.deltaTime * _lerp);
-
-            transform.Translate(0, 0, speed * Time.deltaTime, Space.Self);
         }
 
         if (TimeToExplode > 0f && _time > TimeToExplode)
@@ -76,14 +61,51 @@ public class Rocket : Ammo
 
     protected void FixedUpdate()
     {
-        _time += Time.deltaTime;
-
-        if (!_targeting)
+        if (_targeting)
         {
-            if (_time > SecondsToTarget)
+            float speed = 7f;
+
+            Vector3 target_pos = Target != null ? Target.position : Vector3.zero;
+
+            if (target_pos != Vector3.zero)
             {
-                _targeting = true;
+                float enemy_speed = Target.GetComponent<Enemy>().Speed;
+                target_pos += _delta;
+
+                speed *= enemy_speed;
+                _direction = target_pos - transform.position;
+
+                if (transform.position.y < target_pos.y)
+                    _direction = Vector3.down;
+
+                // Get the angle between transform.forward and target delta
+                float angle_diff = Vector3.Angle(transform.forward, _direction);
+
+                // Get its cross product, which is the axis of rotation to get from one vector to the other
+                Vector3 cross = Vector3.Cross(transform.forward, _direction);
+
+                // Apply torque along that axis according to the magnitude of the angle.
+                GetComponent<Rigidbody>().AddTorque(cross * angle_diff * speed * Time.deltaTime);
             }
+
+            transform.Translate(0, 0, speed * Time.deltaTime, Space.Self);
         }
+        else
+        {
+            float angle_down = Vector3.Angle(transform.forward, Vector3.down);
+            Vector3 cross_down = Vector3.Cross(transform.forward, Vector3.down);
+            GetComponent<Rigidbody>().AddTorque(cross_down * 0.3f * angle_down * Time.deltaTime);
+        }
+    }
+
+    public override void SpawnEffect(Vector3 pos, Quaternion rot, bool stop = true)
+    {
+        _targetting_effect.GetComponent<ParticleSystem>().Stop();
+        base.SpawnEffect(pos, rot, stop);
+    }
+
+    public void Init(float error)
+    {
+        _delta = new Vector3(Random.Range(-error, error), 0f, Random.Range(-error, error));
     }
 }

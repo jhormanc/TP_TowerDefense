@@ -181,13 +181,13 @@ public class Weapon : MonoBehaviour
         if (fire_bullet)
         {
             bullet.GetComponent<Ammo>().Source = gameObject;
+            bullet.SetActive(true);
             bullet.transform.position = shoot_point.position;
             bullet.transform.rotation = shoot_point.rotation;
             bullet.transform.forward = shoot_point.forward;
             bullet.GetComponent<Rigidbody>().velocity = shoot_point.forward;
             bullet.GetComponent<Rigidbody>().AddForce(Vector3.zero);
             bullet.GetComponent<Rigidbody>().AddForce(shoot_point.forward * BulletSpeed);
-            bullet.SetActive(true);
         }
 
         if (ray_shoot)

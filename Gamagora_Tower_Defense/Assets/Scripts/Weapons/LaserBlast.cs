@@ -35,7 +35,7 @@ public class LaserBlast : Weapon
         {
             target_pos = target.position;
             float dist = Vector3.Distance(head.position, target_pos);
-            float h = (dist * dist / 15f);
+            float h = (dist * dist / 20f);
 
             // Angle de vision max vers le haut
             if (h > 15f)
@@ -44,7 +44,7 @@ public class LaserBlast : Weapon
             target_pos +=  (target.position - head.position).magnitude
                              * target.forward
                              * target.GetComponent<Enemy>().Speed
-                             / (BulletSpeed);
+                             / (BulletSpeed * 0.1f);
 
             // Change target y position
             target_pos = target_pos + new Vector3(0f, h, 0f);

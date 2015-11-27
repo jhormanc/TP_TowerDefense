@@ -28,15 +28,21 @@ public class Ammo : MonoBehaviour
 	
 	}
 
-    protected virtual void Disable()
-    {
-        SpawnEffect(transform.position, transform.rotation);
-    }
-
     protected virtual void OnEnable()
     {
         transform.FindChild("Base").gameObject.SetActive(true);
         GetComponent<Collider>().enabled = true;
+    }
+
+    protected virtual void OnCollisionEnter(Collision col)
+    {
+        if (col.gameObject.tag == "Terrain")
+            Disable();
+    }
+
+    protected virtual void Disable()
+    {
+        SpawnEffect(transform.position, transform.rotation);
     }
 
     public virtual void SpawnEffect(Vector3 pos, Quaternion rot, bool stop = true)

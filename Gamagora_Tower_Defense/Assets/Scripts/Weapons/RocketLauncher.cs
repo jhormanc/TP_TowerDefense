@@ -3,6 +3,8 @@ using System.Collections;
 
 public class RocketLauncher : Weapon
 {
+    // distance maximum d'erreur possible pour le missile
+    public float MissileErrorMax;
     private int _selected_cannon = 1;
 
 	public RocketLauncher() : base()
@@ -27,11 +29,11 @@ public class RocketLauncher : Weapon
         {
             target_pos = target.position;
             float dist = Vector3.Distance(head.position, target_pos);
-            float h = (dist * dist / 10f);
+            float h = 0.1f * dist * dist - 5f * dist + 80f;
 
             // Angle de vision max vers le haut
-            if (h > 20f)
-                h = 20f;
+            if (h > 40f)
+                h = 40f;
 
             target_pos += (target.position - head.position).magnitude
                              * target.forward
@@ -53,6 +55,7 @@ public class RocketLauncher : Weapon
         Transform shoot = GetCannon();
         GameObject bullet = _bullets.GetNextObj();
 
+        bullet.GetComponent<Rocket>().Init(MissileErrorMax);
         EmitParticle(true);
         StartCoroutine(Fire(shoot, bullet, false));
 
