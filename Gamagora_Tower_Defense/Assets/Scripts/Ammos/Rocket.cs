@@ -6,10 +6,10 @@ public class Rocket : Ammo
     public Transform Target;
     public float SecondsToTarget;
     public GameObject TargettingEffect;
+    public int ChanceToMiss;
 
     private float _time;
     private bool _targeting = false;
-    private float _lerp;
     private Vector3 _direction;
     private Vector3 _delta;
     private GameObject _targetting_effect;
@@ -33,7 +33,6 @@ public class Rocket : Ammo
     protected override void OnEnable()
     {
         _time = 0f;
-        _lerp = 5f;
         _targeting = false;
         Target = null;
         base.OnEnable();
@@ -63,32 +62,32 @@ public class Rocket : Ammo
     {
         if (_targeting)
         {
-            float speed = 7f;
+            float speed = 5f;
 
             Vector3 target_pos = Target != null ? Target.position : Vector3.zero;
 
             if (target_pos != Vector3.zero)
             {
                 float enemy_speed = Target.GetComponent<Enemy>().Speed;
-                target_pos += _delta;
 
+                if(ChanceToMiss > 0 && ChanceToMiss <= 100)
+                {
+                    int rand = Random.Range(1, 100);
+
+                    if (rand <= ChanceToMiss)
+                        target_pos += _delta;
+                }
+               
                 speed *= enemy_speed;
                 _direction = target_pos - transform.position;
 
                 if (transform.position.y < target_pos.y)
                     _direction = Vector3.down;
 
-                // Get the angle between transform.forward and target delta
-                float angle_diff = Vector3.Angle(transform.forward, _direction);
-
-                // Get its cross product, which is the axis of rotation to get from one vector to the other
-                Vector3 cross = Vector3.Cross(transform.forward, _direction);
-
-                // Apply torque along that axis according to the magnitude of the angle.
-                GetComponent<Rigidbody>().AddTorque(cross * angle_diff * speed * Time.deltaTime);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_direction), speed * Time.deltaTime);
             }
 
-            transform.Translate(0, 0, speed * Time.deltaTime, Space.Self);
+            GetComponent<Rigidbody>().AddForce(transform.forward * 4f * speed * Time.deltaTime, ForceMode.Impulse);
         }
         else
         {

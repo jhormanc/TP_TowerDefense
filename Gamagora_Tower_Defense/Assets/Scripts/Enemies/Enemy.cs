@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Pathfinding;
 
 public class Enemy : MonoBehaviour
 {
@@ -10,14 +11,23 @@ public class Enemy : MonoBehaviour
     public int Points;
     public GameObject Target;
     public GameObject Origin;
+    public float TimeBeforeExplode;
 
     // Vie
     protected float _health;
+    protected bool _dead;
 
     // Déplacements
     protected bool _move;
-    protected Vector3 _last_pos;
+    //protected Vector3 _last_pos;
     protected Quaternion _lookRotation;
+
+    // IA
+    //The max distance from the AI to a waypoint for it to continue to the next waypoint
+    public float nextWaypointDistance = 3f;
+    public Path Path; // The calculated path
+    private Seeker _seeker;
+    private int _waypoint;
 
     protected GameManager Manager;
 
@@ -31,21 +41,58 @@ public class Enemy : MonoBehaviour
     {
         _move = true;
         //transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
-        _last_pos = transform.position;
+        //_last_pos = transform.position;
         _health = HP;
         Dead = false;
         Manager = GameManager.Instance;
+        _waypoint = 0;
+        _seeker = GetComponent<Seeker>();
     }
 
     void OnEnable()
     {
-        _health = HP;
-        Dead = false;
+        
+    }
+
+    public void Init(GameObject source, GameObject target)
+    {
+        Origin = source;
+        Target = target;
+        GetComponent<Rigidbody>().isKinematic = true;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Particle").gameObject.SetActive(true);
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
         if (Origin != null)
             transform.position = Origin.transform.position;
+        _health = HP;
+        Dead = false;
+
+        AstarPath.OnGraphsUpdated += RecalculatePath;
+        _seeker.pathCallback += OnPathComplete;
+        _seeker.StartPath(transform.position, Target.transform.position);
+    }
+
+    public void OnDisable()
+    {
+        _seeker.pathCallback -= OnPathComplete;
+        AstarPath.OnGraphsUpdated -= RecalculatePath;
+    }
+
+    public void OnPathComplete(Path p)
+    {
+        if (!p.error)
+        {
+            Path = p;
+            //Reset the waypoint counter
+            _waypoint = 0;
+        }
+        else
+            Debug.Log("Pathfinding Error : " + p.errorLog);
+    }
+
+    public void RecalculatePath(AstarPath script)
+    {
+        _seeker.StartPath(transform.position, Target.transform.position);
     }
 
     // Update is called once per frame
@@ -53,13 +100,15 @@ public class Enemy : MonoBehaviour
     {
         if (_health < 0f)
         {
-            StartCoroutine(Die());
+            Die();
         }
+        else
+        {
+            _move = true;
 
-        _move = true;
-
-        if(_move)
-            Move();
+            if (_move)
+                Move();
+        }
     }
 
     public void ReceiveDamage(float damage)
@@ -72,36 +121,62 @@ public class Enemy : MonoBehaviour
         return _health < 0f;
     }
 
-    protected IEnumerator Die()
+    protected void Die()
     {
         if (!Dead)
         {
-            transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
-            transform.FindChild("Particle").gameObject.SetActive(false);
-            transform.FindChild("Flash").GetComponent<ParticleSystem>().Play();
-            yield return new WaitForSeconds(0.3f);
             Manager.SetDead(gameObject);
             Dead = true;
+            StartCoroutine(StartDead());
         }
+    }
+
+    protected IEnumerator StartDead()
+    {
+        GetComponent<Rigidbody>().isKinematic = false;
+        yield return new WaitForSeconds(TimeBeforeExplode);
+
+        transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
+        transform.FindChild("Particle").gameObject.SetActive(false);
+        transform.FindChild("Flash").GetComponent<ParticleSystem>().Play();
+        yield return new WaitForSeconds(0.3f);
+        Manager.RemoveEnemy(gameObject);
     }
 
     protected void Move()
     {
-        if(Target != null)
+        if (Path == null)
         {
-            float step = Speed * Time.deltaTime;
-
-            Vector3 direction = (Target.transform.position - transform.position).normalized;
-
-            _lookRotation = Quaternion.LookRotation(direction);
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, step);
-            transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, step);
-
-            if(Vector3.Distance(transform.position, Target.transform.position) <= 1f)
+            // We have no path to move after yet
+            return;
+        }
+        if (_waypoint >= Path.vectorPath.Count)
+        {
+            if (Vector3.Distance(transform.position, Target.transform.position) <= nextWaypointDistance)
             {
                 Manager.ReceiveDamage(Degats, gameObject);
             }
+            return;
+        }
+
+        // Direction to the next waypoint
+        Vector3 dir = (Path.vectorPath[_waypoint] - transform.position).normalized;
+        float speed = Speed * Time.deltaTime;
+
+        _lookRotation = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, speed);
+
+        float f = Time.realtimeSinceStartup * 4f * Speed;
+        Vector3 delta_h = 0.2f * Vector3.up * Mathf.Cos(f);
+
+        transform.position = Vector3.Lerp(transform.position, transform.position + dir + Vector3.up * 0.5f + delta_h, speed);
+
+        // Check if we are close enough to the next waypoint
+        // If we are, proceed to follow the next waypoint
+        if (Vector3.Distance(transform.position, Path.vectorPath[_waypoint]) < nextWaypointDistance)
+        {
+            _waypoint++;
+            return;
         }
     }
 
@@ -134,9 +209,9 @@ public class Enemy : MonoBehaviour
 
     ////}
 
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(_last_pos, transform.position);
-    }
+    //void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawLine(_last_pos, transform.position);
+    //}
 }

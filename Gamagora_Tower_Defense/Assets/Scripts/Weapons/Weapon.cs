@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class Weapon : MonoBehaviour
 {
@@ -40,7 +41,6 @@ public class Weapon : MonoBehaviour
     public int Level { get; private set; } // Niveaux de la tourelle
     public int LevelUpPrice; // Prix pour lvl up
     public int Price; // Prix d'achat
-    public float SelectedIntensity;
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
@@ -186,7 +186,6 @@ public class Weapon : MonoBehaviour
             bullet.transform.rotation = shoot_point.rotation;
             bullet.transform.forward = shoot_point.forward;
             bullet.GetComponent<Rigidbody>().velocity = shoot_point.forward;
-            bullet.GetComponent<Rigidbody>().AddForce(Vector3.zero);
             bullet.GetComponent<Rigidbody>().AddForce(shoot_point.forward * BulletSpeed);
         }
 
@@ -328,9 +327,31 @@ public class Weapon : MonoBehaviour
 
     public Transform GetTarget()
     {
-        if (_targets.Count > 0 && _targets[0] != null)
-            return ((GameObject)_targets[0]).transform;
-        return null;
+        Transform target = null;
+        int i = 0;
+        List<GameObject> dead_enemies = new List<GameObject>();
+
+        if (_targets.Count > 0 && _targets[i] != null)
+        {
+            GameObject enemy = (GameObject)_targets[i];
+
+            while (enemy != null && enemy.GetComponent<Enemy>().Dead)
+            {
+                dead_enemies.Add(enemy);
+                i++;
+                enemy = _targets.Count > i ? (GameObject)_targets[i] : null;
+            }
+
+            foreach(GameObject e in dead_enemies)
+            {
+                RemoveTarget(e);
+            }
+
+            if (enemy != null)
+                target = enemy.transform;
+        }
+
+        return target;
     }
 
     public Color GetColor()
@@ -366,11 +387,6 @@ public class Weapon : MonoBehaviour
         }
 
         return new Color(red, green, blue);
-    }
-
-    public float GetSelectedIntensity()
-    {
-        return SelectedIntensity;
     }
 
     public void RemoveTarget(GameObject enemy)

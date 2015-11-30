@@ -111,6 +111,12 @@
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
     </Reference>
+    <Reference Include="Pathfinding.Ionic.Zip.Reduced">
+      <HintPath>Assets\Sources\AstarPathfindingProject\Plugins\DotNetZip\Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.JsonFx">
+      <HintPath>Assets\Sources\AstarPathfindingProject\Plugins\JsonFx\Pathfinding.JsonFx.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-UnityScript">
       <HintPath>Library\ScriptAssemblies\Assembly-UnityScript.dll</HintPath>
     </Reference>
@@ -127,8 +133,36 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\CrossPlatformInput\CrossPlatformInputInitialize.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\AnimationLinkEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\AstarPathEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\AstarUpdateChecker.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\AstarUpdateWindow.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\CustomGraphEditorAttribute.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\EditorGUIx.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\EditorUtilities.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\GraphEditors\GraphEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\GraphEditors\GridGeneratorEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\GraphEditors\NavMeshGeneratorEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\GraphEditors\PointGeneratorEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\GraphUpdateSceneEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\Misc\AstarEnumFlagDrawer.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\ModifierEditors\RaycastModifierEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\ModifierEditors\SmoothModifierEditor.cs" />
+    <Compile Include="Assets\Sources\AstarPathfindingProject\Editor\SeekerEditor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Sources\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh2.shader" />
+    <None Include="Assets\Sources\AstarPathfindingProject\ExampleScenes\Materials\DiffuseAlwaysVisible.shader" />
+    <None Include="Assets\Sources\AstarPathfindingProject\ExampleScenes\Materials\Projector Light.shader" />
+    <None Include="Assets\Sources\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />
+    <None Include="Assets\Sources\AstarPathfindingProject\ExampleScenes\_Example Scenes.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\Plugins\DotNetZip\DotNetZipLicense.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\Plugins\JsonFx\JsonFxLicense.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\Plugins\JsonFx\Readme.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\Plugins\dependencies.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\Readme.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\Readme_upgrading.txt" />
+    <None Include="Assets\Sources\AstarPathfindingProject\link.xml" />
     <None Include="Assets\Sources\Elementals\!Readme.txt" />
     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />
     <None Include="Assets\Sources\Handpainted Forest Environment Free Sample\Standard Assets\Effects\ImageEffects\Shaders\BlurEffectConeTaps.shader" />

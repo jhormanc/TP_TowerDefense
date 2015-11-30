@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Pathfinding;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -10,6 +11,7 @@ public class GameManager : Singleton<GameManager>
 
     public Spawn SpawnManager1;
     public GameObject Terrain;
+    public GameObject NewWeaponEffect;
 
     // Player
     public bool WaveIsOver;
@@ -24,12 +26,15 @@ public class GameManager : Singleton<GameManager>
     private static readonly string BestScoreKey = "BestScore";
 
     // Weapons
+    public GameObject AStar;
     private bool _placing_weapon;
+    private bool _new_weapon;
     private static GameObject[] _weapons_list;
     private ArrayList _weapons; // TODO Weapons PullManager
     private GameObject _temp_weapon;
-    bool _weapon_selected;
+    private bool _weapon_selected;
     private Camera _main_camera; // Tourelle automatique ou manuelle
+    private GameObject _newWeaponEffect;
 
     // Enemies
     public int InitialEnemySize;
@@ -40,13 +45,16 @@ public class GameManager : Singleton<GameManager>
     // Use this for initialization
     void Awake()
     {
-        SpawnManager1 = GetComponent<Spawn>();
+         SpawnManager1 = GetComponent<Spawn>();
         _weapons_list = Resources.LoadAll<GameObject>("Prefabs/Weapons");
         _ennemy_list = Resources.LoadAll<GameObject>("Prefabs/Enemies");
+        if (NewWeaponEffect != null)
+            _newWeaponEffect = Instantiate(NewWeaponEffect);
         _wave = 1;
         _weapons = new ArrayList();
         _weapon_selected = false;
         _placing_weapon = false;
+        _new_weapon = false;
         _waveIsStarted = false;
         _main_camera = null;
         SpawnManager1.Init(_ennemy_list[0], InitialEnemySize);
@@ -86,32 +94,63 @@ public class GameManager : Singleton<GameManager>
 
             if (_placing_weapon)
             {
-                if (pos.collider != null && (pos.collider.tag == "Terrain"))
+                if (pos.collider != null && pos.collider.tag != "UI" && pos.collider.tag != "TransparentFX")
+                    _temp_weapon.transform.position = new Vector3(pos.point.x, 0f, pos.point.z);
+
+                GraphNode node = AstarPath.active.GetNearest(_temp_weapon.transform.position).node;
+                
+                if (!node.Walkable)
                 {
-                    _temp_weapon.transform.position = pos.point;
+                       
                 }
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _temp_weapon.GetComponent<SphereCollider>().enabled = true;
-                    _temp_weapon.GetComponent<Rigidbody>().isKinematic = false;
-                    _temp_weapon.GetComponent<Weapon>().enabled = true;
-                    _weapons.Add(_temp_weapon);
-                    Money -= _temp_weapon.GetComponent<Weapon>().Price;
-                    RefreshUI();
-                    _placing_weapon = false;
-                    _temp_weapon = null;
+                    var guo = new GraphUpdateObject(_temp_weapon.GetComponent<Collider>().bounds);
+                    var spawnPointNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().StartPoint.transform.position).node;
+                    var goalNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().EndPoint.transform.position).node;
+
+                    if (GraphUpdateUtilities.UpdateGraphsNoBlock(guo, spawnPointNode, goalNode, false))
+                    {
+                        // Valid tower position
+                        // Since the last parameter (which is called "alwaysRevert") in the method call was false
+                        // The graph is now updated and the game can just continue
+
+                        SetTransparent(_temp_weapon, false);
+
+                        if (_new_weapon)
+                        {
+                            PlayNewWeaponEffect(_temp_weapon.transform, Color.white);
+                            _weapons.Add(_temp_weapon);
+                            Money -= _temp_weapon.GetComponent<Weapon>().Price;
+
+                            StartCoroutine(StartWeaponColor(_temp_weapon));
+                        }
+
+                        RefreshUI();
+                        _placing_weapon = false;
+                        _new_weapon = false;
+                        _temp_weapon = null;
+                    }
+                    else
+                    {
+                        // Invalid tower position. It blocks the path between the spawn point and the goal
+                        // The effect on the graph has been reverted
+
+                        PlayNewWeaponEffect(_temp_weapon.transform, Color.red);
+                    }
                 }
                 else if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
                 {
                     _placing_weapon = false;
                     Destroy(_temp_weapon);
                     _temp_weapon = null;
+                    _new_weapon = false;
                 }
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                if (pos.collider.tag == "Weapon")
+                if (pos.collider != null && pos.collider.tag == "Weapon")
                 {
                     GameObject weapon = pos.collider.gameObject;
                     if (weapon != _temp_weapon)
@@ -120,9 +159,11 @@ public class GameManager : Singleton<GameManager>
                             SetColor(_temp_weapon);
 
                         _temp_weapon = weapon;
-                        _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_Color", Color.white);
-                        _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetFloat("_Emission", 2f);
-                        _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.white * _temp_weapon.GetComponent<Weapon>().GetSelectedIntensity());
+                        Color color = _temp_weapon.GetComponent<Weapon>().GetColor();
+                        Material mat = _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
+                        mat.SetColor("_Color", color);
+                        mat.SetFloat("_Emission", 1f);
+                        mat.SetColor("_EmissionColor", color * 0.8f);
                         _weapon_selected = true;
                         RefreshUI();
                     }
@@ -138,11 +179,73 @@ public class GameManager : Singleton<GameManager>
         }
 	}
 
+    public void PlayNewWeaponEffect(Transform pos, Color color)
+    {
+        if (_newWeaponEffect != null)
+        {
+            _newWeaponEffect.GetComponent<ParticleSystem>().Stop();
+            _newWeaponEffect.GetComponent<ParticleSystem>().startColor = color;
+
+            _newWeaponEffect.transform.position = pos.position + new Vector3(0f, 0.2f, 0f);
+            _newWeaponEffect.transform.rotation = pos.rotation;
+            _newWeaponEffect.GetComponent<ParticleSystem>().Play();
+        }
+    }
+
+    public void UpdateGraph(Bounds b)
+    {
+        var guo = new GraphUpdateObject(b);
+        // Set some settings
+        guo.updatePhysics = true;
+        AstarPath.active.UpdateGraphs(guo);
+    }
+
+    public void SetTransparent(GameObject weapon, bool transparent)
+    {
+        string mode = transparent ? "Transparent" : "Opaque";
+        Transform b = weapon.transform.FindChild("Base");
+        Material temperature = b.FindChild("Temperature").GetComponent<Renderer>().material;
+        Material mat = b.GetComponent<Renderer>().material;
+
+        General.SetupMaterialWithBlendMode(mat, mode);
+        General.ChangeMaterialForAllChild(b, mat, new string[] { "Temperature" });
+        General.SetupMaterialWithBlendMode(temperature, mode);
+
+        if (transparent)
+        {
+            mat.SetAlpha(0.3f);
+            temperature.SetColor("_Color", Color.white);
+            temperature.SetAlpha(0.3f);
+        }
+
+        //_temp_weapon.GetComponent<SphereCollider>().enabled = !transparent;
+        _temp_weapon.GetComponent<Weapon>().enabled = !transparent;
+        //_temp_weapon.GetComponent<Rigidbody>().isKinematic = transparent;
+    }
+
     public void SetColor(GameObject weapon)
     {
-        weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_Color", _temp_weapon.GetComponent<Weapon>().GetColor());
-        weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetFloat("_Emission", 2f);
-        weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
+        Material mat = weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
+        mat.SetColor("_Color", weapon.GetComponent<Weapon>().GetColor());
+        mat.SetFloat("_Emission", 2f);
+        mat.SetColor("_EmissionColor", Color.black);
+    }
+
+    public IEnumerator StartWeaponColor(GameObject weapon)
+    {
+        Material mat = weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
+        Color color = Color.black;
+
+        mat.SetFloat("_Emission", 2f);
+        mat.SetColor("_EmissionColor", color);
+
+        for (int i = 1; i <= 80; i++)
+        {
+            color.g = i / 100f;
+            mat.SetColor("_Color", color);
+
+            yield return new WaitForSeconds(0.005f);
+        }
     }
 
     private bool IsOver()
@@ -234,6 +337,8 @@ public class GameManager : Singleton<GameManager>
         if (enemy.GetComponent<Little1>() != null)
             SpawnManager1.SetDead(enemy);
 
+        RemoveTargetFromAllWeapons(enemy);
+
         if (HP <= 0)
         {
             Win = false;
@@ -250,10 +355,18 @@ public class GameManager : Singleton<GameManager>
 
         RefreshUI();
 
+        RemoveTargetFromAllWeapons(enemy);
+    }
+
+    public void RemoveEnemy(GameObject enemy)
+    {
         if (enemy.GetComponent<Little1>() != null)
             SpawnManager1.SetDead(enemy);
+    }
 
-        for(int i = 0; i < _weapons.Count; i++)
+    public void RemoveTargetFromAllWeapons(GameObject enemy)
+    {
+        for (int i = 0; i < _weapons.Count; i++)
         {
             ((GameObject)_weapons[i]).GetComponent<Weapon>().RemoveTarget(enemy);
         }
@@ -263,16 +376,22 @@ public class GameManager : Singleton<GameManager>
     {
         if (_placing_weapon == false && Money >=_weapons_list[nb].GetComponent<Weapon>().Price)
         {
-            _placing_weapon = true;
             RaycastHit pos = GetMouseRayPos();
+
             if (_temp_weapon != null)
                 SetColor(_temp_weapon);
+
             _temp_weapon = (GameObject)Instantiate(_weapons_list[nb], pos.point, Quaternion.Euler(0, 0, 0));
-            _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
+
+            Material temperature = _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
+            temperature.EnableKeyword("_EMISSION");
+
             UnityEditor.PrefabUtility.ResetToPrefabState(_temp_weapon);
-            _temp_weapon.GetComponent<SphereCollider>().enabled = false;
-            _temp_weapon.GetComponent<Weapon>().enabled = false;
+            SetTransparent(_temp_weapon, true);
+
             _temp_weapon.SetActive(true);
+            _placing_weapon = true;
+            _new_weapon = true;
         }
     }
 }

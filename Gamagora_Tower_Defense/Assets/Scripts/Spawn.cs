@@ -53,10 +53,9 @@ public class Spawn : MonoBehaviour
         for (int i = 0; i < SpawnSize; i++)
         {
             GameObject e = _spawn.GetNextObj();
-            e.GetComponent<Enemy>().Target = _end;
-            e.GetComponent<Enemy>().Origin = _start;
             e.SetActive(true);
-
+            e.GetComponent<Enemy>().Init(_start, _end);
+            
             yield return new WaitForSeconds(SpawnDelay);
         }
 

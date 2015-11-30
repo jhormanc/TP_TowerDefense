@@ -58,7 +58,7 @@ public class Ammo : MonoBehaviour
         GetComponent<Collider>().enabled = false;
         transform.FindChild("Base").gameObject.SetActive(false);
 
-        if(stop)
+        if(stop && gameObject.activeSelf)
             StartCoroutine(Stop());
     }
 
@@ -82,6 +82,8 @@ public class Ammo : MonoBehaviour
             if(hit.collider.tag == "Enemy")
             {
                 Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();
+                float force = (hit.distance != 0f ? 1f / hit.distance : 10f) * ExplosionRadius * DegatsExplode;
+                enemy.GetComponent<Rigidbody>().AddExplosionForce(force, transform.position, ExplosionRadius); 
                 enemy.ReceiveDamage(Source.GetComponent<Weapon>().CalculateDamage(gameObject, enemy, true));
             }
         }
