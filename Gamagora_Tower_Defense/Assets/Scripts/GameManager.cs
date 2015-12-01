@@ -46,7 +46,6 @@ public class GameManager : Singleton<GameManager>
 
     // Enemies
     public Spawn SpawnManager1;
-    public List<Spawn> SpawnManager; // TODO
     public int InitialEnemySize;
     private static GameObject[] _ennemy_list;
     private int _wave;
@@ -514,7 +513,7 @@ public class GameManager : Singleton<GameManager>
     {
         yield return new WaitForSeconds(2.5f);
 
-        // TODO List Pull
+        // TODO others
         if (enemy.GetComponent<Little1>() != null)
             SpawnManager1.SetDead(enemy);
     }

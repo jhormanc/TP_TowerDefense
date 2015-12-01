@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\Ammos\ShotgunBullet.cs" />
     <Compile Include="Assets\Scripts\Enemies\Enemy.cs" />
     <Compile Include="Assets\Scripts\Enemies\Little1.cs" />
+    <Compile Include="Assets\Scripts\Enemies\Little2.cs" />
     <Compile Include="Assets\Scripts\ExtensionMethods.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\General.cs" />

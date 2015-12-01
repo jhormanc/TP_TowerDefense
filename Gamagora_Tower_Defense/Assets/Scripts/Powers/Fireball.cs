@@ -21,7 +21,7 @@ public class Fireball : PowerDamage
                 float force = (m > 0.2f ? 1f / m : 5f) * ExplosionRadius * Damage;
 
                 enemy.ReceiveDamage(Damage);
-                rb.AddExplosionForce(force * 500f, transform.position, ExplosionRadius * 10f, 1f, ForceMode.Force);
+                rb.AddExplosionForce(force * 300f, transform.position, ExplosionRadius * 10f, 1f, ForceMode.Force);
             }
         }
     }
