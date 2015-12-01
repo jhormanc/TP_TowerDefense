@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Pathfinding;
+using System.Collections.Generic;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -10,6 +11,8 @@ public class GameManager : Singleton<GameManager>
     protected GameManager() { } 
 
     public Spawn SpawnManager1;
+    public List<Spawn> SpawnManager;
+
     public GameObject Terrain;
     public GameObject NewWeaponEffect;
 
@@ -30,7 +33,8 @@ public class GameManager : Singleton<GameManager>
     private bool _placing_weapon;
     private bool _new_weapon;
     private static GameObject[] _weapons_list;
-    private ArrayList _weapons; // TODO Weapons PullManager
+    private List<PullManager> _weapons;
+
     private GameObject _temp_weapon;
     private bool _weapon_selected;
     private Camera _main_camera; // Tourelle automatique ou manuelle
@@ -51,7 +55,15 @@ public class GameManager : Singleton<GameManager>
         if (NewWeaponEffect != null)
             _newWeaponEffect = Instantiate(NewWeaponEffect);
         _wave = 1;
-        _weapons = new ArrayList();
+
+        _weapons = new List<PullManager>();
+        foreach (GameObject obj in _weapons_list)
+        {
+            PullManager pull = ScriptableObject.CreateInstance<PullManager>();
+            pull.Init(obj, obj.GetComponent<Weapon>().MaxWeaponsInTheSameTime);
+            _weapons.Add(pull);
+        }
+            
         _weapon_selected = false;
         _placing_weapon = false;
         _new_weapon = false;
@@ -90,66 +102,91 @@ public class GameManager : Singleton<GameManager>
 
         if (_main_camera == null)
         {
-            RaycastHit pos = GetMouseRayPos();
+            RaycastHit pos;
 
             if (_placing_weapon)
             {
-                if (pos.collider != null && pos.collider.tag != "UI" && pos.collider.tag != "TransparentFX")
+                pos = GetMouseRayPos(false, 11, 1); // Terrain, TransparentFX (TerrainCollider)
+
+                if (pos.collider != null)
                     _temp_weapon.transform.position = new Vector3(pos.point.x, 0f, pos.point.z);
 
-                GraphNode node = AstarPath.active.GetNearest(_temp_weapon.transform.position).node;
-                
-                if (!node.Walkable)
+                GridGraph grid = (GridGraph)AstarPath.active.graphs[0];
+                List<GraphNode> nodes = grid.GetNodesInArea(_temp_weapon.GetComponent<Collider>().bounds);
+
+                bool walkable = true;
+
+                foreach(GraphNode n in nodes)
                 {
-                       
+                    if(!n.Walkable)
+                    {
+                        walkable = false;
+                        break;
+                    }
                 }
+
+                _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, true, walkable ? Color.green : Color.red);
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    var guo = new GraphUpdateObject(_temp_weapon.GetComponent<Collider>().bounds);
-                    var spawnPointNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().StartPoint.transform.position).node;
-                    var goalNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().EndPoint.transform.position).node;
-
-                    if (GraphUpdateUtilities.UpdateGraphsNoBlock(guo, spawnPointNode, goalNode, false))
+                    if (walkable)
                     {
-                        // Valid tower position
-                        // Since the last parameter (which is called "alwaysRevert") in the method call was false
-                        // The graph is now updated and the game can just continue
+                        var guo = new GraphUpdateObject(_temp_weapon.GetComponent<Collider>().bounds);
+                        var spawnPointNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().StartPoint.transform.position).node;
+                        var goalNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().EndPoint.transform.position).node;
 
-                        SetTransparent(_temp_weapon, false);
-
-                        if (_new_weapon)
+                        if (GraphUpdateUtilities.UpdateGraphsNoBlock(guo, spawnPointNode, goalNode, false))
                         {
-                            PlayNewWeaponEffect(_temp_weapon.transform, Color.white);
-                            _weapons.Add(_temp_weapon);
-                            Money -= _temp_weapon.GetComponent<Weapon>().Price;
+                            // Valid tower position
+                            // Since the last parameter (which is called "alwaysRevert") in the method call was false
+                            // The graph is now updated and the game can just continue
 
-                            StartCoroutine(StartWeaponColor(_temp_weapon));
+                            SetTransparent(_temp_weapon, false);
+
+                            if (_new_weapon)
+                            {
+                                PlayNewWeaponEffect(_temp_weapon.transform, Color.white);
+                                //_weapons.Add(_temp_weapon);
+                                Money -= _temp_weapon.GetComponent<Weapon>().Price;
+
+                                StartCoroutine(StartWeaponColor(_temp_weapon));
+                            }
+
+                            RefreshUI();
+                            _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, false);
+                            ShowGrid(false);
+                            _placing_weapon = false;
+                            _new_weapon = false;
+                            _temp_weapon = null;
                         }
-
-                        RefreshUI();
-                        _placing_weapon = false;
-                        _new_weapon = false;
-                        _temp_weapon = null;
+                        else
+                        {
+                            // Invalid tower position. It blocks the path between the spawn point and the goal
+                            // The effect on the graph has been reverted
+                            _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, true, Color.red);
+                            PlayNewWeaponEffect(_temp_weapon.transform, Color.red);
+                        }
                     }
                     else
                     {
-                        // Invalid tower position. It blocks the path between the spawn point and the goal
-                        // The effect on the graph has been reverted
-
+                        _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, true, Color.red);
                         PlayNewWeaponEffect(_temp_weapon.transform, Color.red);
                     }
                 }
                 else if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
                 {
+                    _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, false);
+                    ShowGrid(false);
                     _placing_weapon = false;
-                    Destroy(_temp_weapon);
+                    _weapons[_temp_weapon.GetComponent<Weapon>().Id].RemoveObj(_temp_weapon);
                     _temp_weapon = null;
                     _new_weapon = false;
                 }
             }
             else if (Input.GetMouseButtonDown(0))
             {
+                pos = GetMouseRayPos(true, 9, 10); // Weapons, Enemies
+
                 if (pos.collider != null && pos.collider.tag == "Weapon")
                 {
                     GameObject weapon = pos.collider.gameObject;
@@ -166,6 +203,7 @@ public class GameManager : Singleton<GameManager>
                         mat.SetColor("_EmissionColor", color * 0.8f);
                         _weapon_selected = true;
                         RefreshUI();
+                        ShowGrid(true);
                     }
                 }
                 else if (_weapon_selected && !EventSystem.current.IsPointerOverGameObject())
@@ -174,6 +212,7 @@ public class GameManager : Singleton<GameManager>
                     _temp_weapon = null;
                     _weapon_selected = false;
                     RefreshUI();
+                    ShowGrid(false);
                 }
             }
         }
@@ -192,6 +231,19 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    public void ShowGrid(bool show)
+    {
+        GridGraph grid = (GridGraph)AstarPath.active.graphs[0];
+        foreach(PullManager pull in _weapons)
+        {
+            foreach (GameObject weapon in pull.GetAllActive())
+            {
+                List<GraphNode> nodes = grid.GetNodesInArea(weapon.GetComponent<Collider>().bounds);
+                weapon.GetComponent<Weapon>().ShowNodes(nodes, show);
+            }
+        }
+    }
+
     public void UpdateGraph(Bounds b)
     {
         var guo = new GraphUpdateObject(b);
@@ -202,49 +254,56 @@ public class GameManager : Singleton<GameManager>
 
     public void SetTransparent(GameObject weapon, bool transparent)
     {
-        string mode = transparent ? "Transparent" : "Opaque";
-        Transform b = weapon.transform.FindChild("Base");
-        Material temperature = b.FindChild("Temperature").GetComponent<Renderer>().material;
-        Material mat = b.GetComponent<Renderer>().material;
-
-        General.SetupMaterialWithBlendMode(mat, mode);
-        General.ChangeMaterialForAllChild(b, mat, new string[] { "Temperature" });
-        General.SetupMaterialWithBlendMode(temperature, mode);
-
-        if (transparent)
+        if (weapon != null)
         {
-            mat.SetAlpha(0.3f);
-            temperature.SetColor("_Color", Color.white);
-            temperature.SetAlpha(0.3f);
-        }
+            string mode = transparent ? "Transparent" : "Opaque";
+            Transform b = weapon.transform.FindChild("Base");
+            Material temperature = b.FindChild("Temperature").GetComponent<Renderer>().material;
+            Material mat = b.GetComponent<Renderer>().material;
 
-        //_temp_weapon.GetComponent<SphereCollider>().enabled = !transparent;
-        _temp_weapon.GetComponent<Weapon>().enabled = !transparent;
-        //_temp_weapon.GetComponent<Rigidbody>().isKinematic = transparent;
+            General.SetupMaterialWithBlendMode(mat, mode);
+            General.ChangeMaterialForAllChild(b, mat, new string[] { "Temperature" });
+            General.SetupMaterialWithBlendMode(temperature, mode);
+
+            if (transparent)
+            {
+                mat.SetAlpha(0.3f);
+                temperature.SetColor("_Color", Color.white);
+                temperature.SetAlpha(0.3f);
+            }
+
+            weapon.GetComponent<Weapon>().enabled = !transparent;
+        }
     }
 
     public void SetColor(GameObject weapon)
     {
-        Material mat = weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
-        mat.SetColor("_Color", weapon.GetComponent<Weapon>().GetColor());
-        mat.SetFloat("_Emission", 2f);
-        mat.SetColor("_EmissionColor", Color.black);
+        if (weapon != null)
+        {
+            Material mat = weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
+            mat.SetColor("_Color", weapon.GetComponent<Weapon>().GetColor());
+            mat.SetFloat("_Emission", 2f);
+            mat.SetColor("_EmissionColor", Color.black);
+        }
     }
 
     public IEnumerator StartWeaponColor(GameObject weapon)
     {
-        Material mat = weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
-        Color color = Color.black;
-
-        mat.SetFloat("_Emission", 2f);
-        mat.SetColor("_EmissionColor", color);
-
-        for (int i = 1; i <= 80; i++)
+        if (weapon != null)
         {
-            color.g = i / 100f;
-            mat.SetColor("_Color", color);
+            Material mat = weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
+            Color color = Color.black;
 
-            yield return new WaitForSeconds(0.005f);
+            mat.SetFloat("_Emission", 2f);
+            mat.SetColor("_EmissionColor", color);
+
+            for (int i = 1; i <= 80; i++)
+            {
+                color.g = i / 100f;
+                mat.SetColor("_Color", color);
+
+                yield return new WaitForSeconds(0.005f);
+            }
         }
     }
 
@@ -282,17 +341,23 @@ public class GameManager : Singleton<GameManager>
         Money = BaseMoney;
         WaveIsOver = false;
         Win = true;
+        _main_camera = null;
+        Camera.main.enabled = true;
+
         transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
         if (PlayerPrefs.HasKey(BestScoreKey))
             BestScore = PlayerPrefs.GetInt(BestScoreKey);
 
-        _weapons.Clear();
+        foreach (PullManager pull in _weapons)
+            pull.RemoveAll();
 
         transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = false;
 
         HP = 100;
         Score = 0;
         _wave = 0;
+
+        AstarPath.active.Scan();
 
         SpawnManager1.NewWave(_wave);
         _waveIsStarted = true;
@@ -317,12 +382,22 @@ public class GameManager : Singleton<GameManager>
         transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = _weapon_selected;
     }
 
-    private RaycastHit GetMouseRayPos()
+    private RaycastHit GetMouseRayPos(bool ignoreTrigger = true, int layer1 = -1, int layer2 = -1, int layer3 = -1)
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit_info;
+        int mask;
 
-        if (Physics.Raycast(ray, out hit_info, 1000f))
+        if (layer1 >= 0 && layer2 >= 0 && layer3 >= 0)
+            mask = 1 << layer1 | 1 << layer2 | 1 << layer3;
+        else if (layer1 >= 0 && layer2 >= 0)
+            mask = 1 << layer1 | 1 << layer2;
+        else if (layer1 >= 0)
+            mask = 1 << layer1;
+        else
+            mask = -1;
+
+        if (Physics.Raycast(ray, out hit_info, Mathf.Infinity, mask, ignoreTrigger ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.Collide))
         {
             return hit_info;
         }
@@ -334,8 +409,7 @@ public class GameManager : Singleton<GameManager>
     {
         HP -= dmg;
 
-        if (enemy.GetComponent<Little1>() != null)
-            SpawnManager1.SetDead(enemy);
+        StartCoroutine(WaitForEnemyBoom(enemy));
 
         RemoveTargetFromAllWeapons(enemy);
 
@@ -346,6 +420,15 @@ public class GameManager : Singleton<GameManager>
         }
 
         RefreshUI();
+    }
+    
+    private IEnumerator WaitForEnemyBoom(GameObject enemy)
+    {
+        yield return new WaitForSeconds(2.5f);
+
+        // TODO List Pull
+        if (enemy.GetComponent<Little1>() != null)
+            SpawnManager1.SetDead(enemy);
     }
 
     public void SetDead(GameObject enemy)
@@ -366,9 +449,10 @@ public class GameManager : Singleton<GameManager>
 
     public void RemoveTargetFromAllWeapons(GameObject enemy)
     {
-        for (int i = 0; i < _weapons.Count; i++)
+        foreach (PullManager pull in _weapons)
         {
-            ((GameObject)_weapons[i]).GetComponent<Weapon>().RemoveTarget(enemy);
+            foreach (GameObject weapon in pull.GetAllActive())
+                weapon.GetComponent<Weapon>().RemoveTarget(enemy);
         }
     }
 
@@ -376,20 +460,21 @@ public class GameManager : Singleton<GameManager>
     {
         if (_placing_weapon == false && Money >=_weapons_list[nb].GetComponent<Weapon>().Price)
         {
-            RaycastHit pos = GetMouseRayPos();
+            RaycastHit pos = GetMouseRayPos(true, 11, 1);
 
             if (_temp_weapon != null)
                 SetColor(_temp_weapon);
 
-            _temp_weapon = (GameObject)Instantiate(_weapons_list[nb], pos.point, Quaternion.Euler(0, 0, 0));
+            _temp_weapon = _weapons[nb].GetNextObj();
+            _temp_weapon.transform.position = pos.point;
+            _temp_weapon.SetActive(true);
 
             Material temperature = _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
             temperature.EnableKeyword("_EMISSION");
 
-            UnityEditor.PrefabUtility.ResetToPrefabState(_temp_weapon);
             SetTransparent(_temp_weapon, true);
+            ShowGrid(true);
 
-            _temp_weapon.SetActive(true);
             _placing_weapon = true;
             _new_weapon = true;
         }

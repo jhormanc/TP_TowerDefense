@@ -36,7 +36,7 @@ public class Ammo : MonoBehaviour
 
     protected virtual void OnCollisionEnter(Collision col)
     {
-        if (col.gameObject.tag == "Terrain")
+        if (col.gameObject.tag != "UI" && col.gameObject.tag != "TerrainCollider")
             Disable();
     }
 

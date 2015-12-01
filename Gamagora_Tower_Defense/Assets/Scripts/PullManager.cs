@@ -9,7 +9,7 @@ public class PullManager : ScriptableObject
     private List<GameObject> _objects;
     private int _object_nb;
 
-    public PullManager(GameObject src, int size)
+    public PullManager()
     {
         _object_nb = -1;
     }
@@ -46,6 +46,16 @@ public class PullManager : ScriptableObject
         {
             obj.SetActive(false);
         }
+    }
+
+    public void RemoveAll()
+    {
+        _objects.ForEach(x => x.SetActive(false));
+    }
+
+    public List<GameObject> GetAllActive()
+    {
+        return _objects.FindAll(x => x.activeSelf);
     }
 
     public GameObject GetNextObj()

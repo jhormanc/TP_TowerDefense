@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Pathfinding;
 
 public class Weapon : MonoBehaviour
 {
@@ -35,12 +36,16 @@ public class Weapon : MonoBehaviour
     public float FireRate;
     public float BulletSpeed;
     public float Degats;
-    public int BulletsSize;
+    public int BulletsSize; // Nombre de bullets dans le pull
     public bool Auto; // Visée auto ou manuelle
     public AimType Aim;
     public int Level { get; private set; } // Niveaux de la tourelle
     public int LevelUpPrice; // Prix pour lvl up
     public int Price; // Prix d'achat
+    public int NodesSize; // Nombre de nodes dans le pull
+    public GameObject Node; // Prefab d'un node
+    public int MaxWeaponsInTheSameTime;
+    public int Id; // Ordre dans le dossier Prefab/Weapons
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
@@ -59,6 +64,9 @@ public class Weapon : MonoBehaviour
 
     // Ennemis
     protected ArrayList _targets;
+
+    // Nodes
+    protected PullManager _nodes;
 
     // Use this for initialization
     protected virtual void Awake()
@@ -82,6 +90,14 @@ public class Weapon : MonoBehaviour
         }
         else
             _bullets = null;
+
+        if (Node != null && NodesSize > 0)
+        {
+            _nodes = ScriptableObject.CreateInstance<PullManager>();
+            _nodes.Init(Node, NodesSize);
+        }
+        else
+            _nodes = null;
 
         EmitParticle(false);
         Move();
@@ -113,7 +129,8 @@ public class Weapon : MonoBehaviour
 
     void FixedUpdate()
     {
-
+        if (_targets.Count > 0 && ((GameObject)_targets[0]).GetComponent<Enemy>().IsTargetable() == false)
+            SortTargets();
     }
 
     void OnTriggerEnter(Collider other)
@@ -133,10 +150,13 @@ public class Weapon : MonoBehaviour
 
     bool CanFire()
     {
+        if (!Auto)
+            return true;
+
         Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
         Transform head = tourelle.FindChild("Head");
 
-        return !Auto || Quaternion.Angle(head != null ? head.rotation : tourelle.rotation, _lookRotation) < 5f;
+        return _targets.Count > 0 && ((GameObject)_targets[0]).GetComponent<Enemy>().IsTargetable() && Quaternion.Angle(head != null ? head.rotation : tourelle.rotation, _lookRotation) < 5f;
     }
 
     void SetFire()
@@ -400,6 +420,22 @@ public class Weapon : MonoBehaviour
     protected void SortTargets()
     {
         _targets.Sort(0, _targets.Count, new EnemySort(Aim));
+    }
+
+    public void ShowNodes(List<GraphNode> nodes, bool show, Color color = default(Color))
+    {
+        _nodes.RemoveAll();
+        if (show)
+        {
+            foreach (GraphNode n in nodes)
+            {
+                GameObject node = _nodes.GetNextObj();
+                node.SetActive(true);
+                node.transform.position = (Vector3)n.position;
+                node.transform.FindChild("Base").GetComponent<Renderer>().material.SetColor("_Color", color == default(Color) ? Color.grey : color);
+
+            }
+        }
     }
 
     void OnDrawGizmos()

@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviour
     public GameObject Target;
     public GameObject Origin;
     public float TimeBeforeExplode;
+    public GameObject Explosion;
 
     // Vie
     protected float _health;
@@ -19,15 +20,17 @@ public class Enemy : MonoBehaviour
 
     // Déplacements
     protected bool _move;
-    //protected Vector3 _last_pos;
+    private bool _targetable;
     protected Quaternion _lookRotation;
 
     // IA
     //The max distance from the AI to a waypoint for it to continue to the next waypoint
-    public float nextWaypointDistance = 3f;
+    public float nextWaypointDistance;
     public Path Path; // The calculated path
     private Seeker _seeker;
     private int _waypoint;
+
+    private GameObject _explosion;
 
     protected GameManager Manager;
 
@@ -40,13 +43,13 @@ public class Enemy : MonoBehaviour
     void Awake()
     {
         _move = true;
-        //transform.FindChild("Flash").GetComponent<ParticleSystem>().enableEmission = false;
-        //_last_pos = transform.position;
         _health = HP;
         Dead = false;
         Manager = GameManager.Instance;
         _waypoint = 0;
         _seeker = GetComponent<Seeker>();
+        if (Explosion != null)
+            _explosion = (GameObject)Instantiate(Explosion, transform.position, transform.rotation);
     }
 
     void OnEnable()
@@ -58,13 +61,18 @@ public class Enemy : MonoBehaviour
     {
         Origin = source;
         Target = target;
+ 
         GetComponent<Rigidbody>().isKinematic = true;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Particle").gameObject.SetActive(true);
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
+ 
         if (Origin != null)
             transform.position = Origin.transform.position;
+
         _health = HP;
+        _targetable = false;
+        _move = true;
         Dead = false;
 
         AstarPath.OnGraphsUpdated += RecalculatePath;
@@ -104,8 +112,6 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            _move = true;
-
             if (_move)
                 Move();
         }
@@ -154,7 +160,16 @@ public class Enemy : MonoBehaviour
         {
             if (Vector3.Distance(transform.position, Target.transform.position) <= nextWaypointDistance)
             {
+                if (_explosion != null)
+                {
+                    transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
+                    transform.FindChild("Particle").gameObject.SetActive(false);
+                    _explosion.transform.position = transform.position;
+                    _explosion.transform.rotation = transform.rotation;
+                    _explosion.GetComponent<ParticleSystem>().Play(true);
+                }
                 Manager.ReceiveDamage(Degats, gameObject);
+                _move = false;
             }
             return;
         }
@@ -180,6 +195,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public bool IsTargetable()
+    {
+        return _targetable;
+    }
+
     public float GetDistFromTarget()
     {
         return Vector3.Distance(transform.position, Target.transform.position);
@@ -202,6 +222,14 @@ public class Enemy : MonoBehaviour
             }
             bullet.SetActive(false);
         }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "TerrainColliderStart")
+            _targetable = true;
+        else if (other.gameObject.tag == "TerrainColliderEnd")
+            _targetable = false;
     }
 
     ////void OnParticleCollision(GameObject other)
