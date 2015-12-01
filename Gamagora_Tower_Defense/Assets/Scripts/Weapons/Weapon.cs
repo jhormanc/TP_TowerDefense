@@ -129,8 +129,13 @@ public class Weapon : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (_targets.Count > 0 && ((GameObject)_targets[0]).GetComponent<Enemy>().IsTargetable() == false)
-            SortTargets();
+        if (_targets != null && _targets.Count > 0)
+        {
+            GameObject target = ((GameObject)_targets[0]);
+            if(target.activeSelf && target.GetComponent<Enemy>().IsTargetable() == false)
+                SortTargets();
+        }
+            
     }
 
     void OnTriggerEnter(Collider other)

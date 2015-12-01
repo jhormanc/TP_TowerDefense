@@ -82,7 +82,8 @@ public class Ammo : MonoBehaviour
             if(hit.collider.tag == "Enemy")
             {
                 Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();
-                float force = (hit.distance != 0f ? 1f / hit.distance : 10f) * ExplosionRadius * DegatsExplode;
+                float force = (hit.distance > 0.2f ? 1f / hit.distance : 5f) * ExplosionRadius * DegatsExplode * 0.1f;
+
                 enemy.GetComponent<Rigidbody>().AddExplosionForce(force, transform.position, ExplosionRadius); 
                 enemy.ReceiveDamage(Source.GetComponent<Weapon>().CalculateDamage(gameObject, enemy, true));
             }

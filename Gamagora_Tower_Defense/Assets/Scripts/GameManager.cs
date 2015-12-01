@@ -8,13 +8,11 @@ using System.Collections.Generic;
 public class GameManager : Singleton<GameManager>
 {
     // Guarantee this will be always a singleton only - can't use the constructor!
-    protected GameManager() { } 
+    protected GameManager() { }
 
-    public Spawn SpawnManager1;
-    public List<Spawn> SpawnManager;
+    private static readonly string BestScoreKey = "BestScore";
 
     public GameObject Terrain;
-    public GameObject NewWeaponEffect;
 
     // Player
     public bool WaveIsOver;
@@ -24,23 +22,31 @@ public class GameManager : Singleton<GameManager>
     public int BestScore { get; private set; }
     public int Money { get; private set; }
     public int BaseMoney;
-
     private bool _waveIsStarted;
-    private static readonly string BestScoreKey = "BestScore";
+
+    // Pouvoirs
+    public GameObject Fireball;
+    public GameObject Freeze;
+    public GameObject PowerSelection;
+    private GameObject _powerSelection;
+    private List<PullManager> _powers;
+    private int _num_power;
 
     // Weapons
+    public GameObject NewWeaponEffect;
     public GameObject AStar;
     private bool _placing_weapon;
     private bool _new_weapon;
     private static GameObject[] _weapons_list;
     private List<PullManager> _weapons;
-
     private GameObject _temp_weapon;
     private bool _weapon_selected;
     private Camera _main_camera; // Tourelle automatique ou manuelle
     private GameObject _newWeaponEffect;
 
     // Enemies
+    public Spawn SpawnManager1;
+    public List<Spawn> SpawnManager; // TODO
     public int InitialEnemySize;
     private static GameObject[] _ennemy_list;
     private int _wave;
@@ -52,9 +58,32 @@ public class GameManager : Singleton<GameManager>
          SpawnManager1 = GetComponent<Spawn>();
         _weapons_list = Resources.LoadAll<GameObject>("Prefabs/Weapons");
         _ennemy_list = Resources.LoadAll<GameObject>("Prefabs/Enemies");
+
+        // Deux pouvoirs
+        _powers = new List<PullManager>();
+
+        if(Fireball != null)
+        {
+            PullManager power = ScriptableObject.CreateInstance<PullManager>();
+            power.Init(Fireball, 5);
+            _powers.Add(power);
+        }
+
+        if (Freeze != null)
+        {
+            PullManager power = ScriptableObject.CreateInstance<PullManager>();
+            power.Init(Freeze, 5);
+            _powers.Add(power);
+        }
+
         if (NewWeaponEffect != null)
             _newWeaponEffect = Instantiate(NewWeaponEffect);
-        _wave = 1;
+
+        if (PowerSelection != null)
+        {
+            _powerSelection = Instantiate(PowerSelection);
+            _powerSelection.gameObject.SetActive(false);
+        }
 
         _weapons = new List<PullManager>();
         foreach (GameObject obj in _weapons_list)
@@ -63,7 +92,7 @@ public class GameManager : Singleton<GameManager>
             pull.Init(obj, obj.GetComponent<Weapon>().MaxWeaponsInTheSameTime);
             _weapons.Add(pull);
         }
-            
+
         _weapon_selected = false;
         _placing_weapon = false;
         _new_weapon = false;
@@ -71,6 +100,7 @@ public class GameManager : Singleton<GameManager>
         _main_camera = null;
         SpawnManager1.Init(_ennemy_list[0], InitialEnemySize);
         BestScore = -1;
+        _num_power = -1;
 
         InitGame();
     }
@@ -84,27 +114,25 @@ public class GameManager : Singleton<GameManager>
             {
                 _wave++;
                 SpawnManager1.NewWave(_wave);
+                RefreshUI();
             }
             else
             {
-                transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = true;
-                transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = false;
-                transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
-
                 if (Score > BestScore)
                     PlayerPrefs.SetInt(BestScoreKey, Score);
 
                 _waveIsStarted = false;
+
+                RefreshUI(true);
             }
 
-            RefreshUI();
         }
 
-        if (_main_camera == null)
+        if (_main_camera == null) // Vue globale
         {
             RaycastHit pos;
 
-            if (_placing_weapon)
+            if (_placing_weapon) // En train de placer une tourelle
             {
                 pos = GetMouseRayPos(false, 11, 1); // Terrain, TransparentFX (TerrainCollider)
 
@@ -146,18 +174,17 @@ public class GameManager : Singleton<GameManager>
                             if (_new_weapon)
                             {
                                 PlayNewWeaponEffect(_temp_weapon.transform, Color.white);
-                                //_weapons.Add(_temp_weapon);
                                 Money -= _temp_weapon.GetComponent<Weapon>().Price;
 
                                 StartCoroutine(StartWeaponColor(_temp_weapon));
                             }
 
-                            RefreshUI();
                             _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, false);
                             ShowGrid(false);
                             _placing_weapon = false;
                             _new_weapon = false;
                             _temp_weapon = null;
+                            RefreshUI();
                         }
                         else
                         {
@@ -183,7 +210,44 @@ public class GameManager : Singleton<GameManager>
                     _new_weapon = false;
                 }
             }
-            else if (Input.GetMouseButtonDown(0))
+            else if(_num_power >= 0) // Position du pouvoir en cours de sélection
+            {
+                pos = GetMouseRayPos(false, 11, 1); // Terrain, TransparentFX (TerrainCollider)
+                Vector3 p = Vector3.zero;
+
+                if (_powerSelection != null)
+                {
+                    if (pos.collider != null)
+                    {
+                        p = new Vector3(pos.point.x, 0f, pos.point.z);
+                        _powerSelection.transform.position = p;
+                    }
+
+                    if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        if(Input.GetMouseButtonDown(0))
+                        {
+                            GameObject power = _powers[_num_power].GetNextObj();
+                            if (_num_power == 0)
+                            {
+                                power.transform.position = Camera.main.transform.position - Vector3.forward * 8f;
+                                Vector3 dir = _powerSelection.transform.position - power.transform.position;
+                                power.transform.rotation = Quaternion.LookRotation(dir);
+                            }
+                            else if (_num_power == 1)
+                                power.transform.position = _powerSelection.transform.position + Vector3.up;
+
+                            power.SetActive(true);
+                            power.GetComponent<ParticleSystem>().Play();
+                        }
+
+                        _powerSelection.gameObject.SetActive(false);
+                        _num_power = -1;
+                        RefreshUI();
+                    }
+                }
+            }
+            else if (Input.GetMouseButtonDown(0)) // Sélection d'un objet sur la map
             {
                 pos = GetMouseRayPos(true, 9, 10); // Weapons, Enemies
 
@@ -341,6 +405,7 @@ public class GameManager : Singleton<GameManager>
         Money = BaseMoney;
         WaveIsOver = false;
         Win = true;
+        _wave = 1;
         _main_camera = null;
         Camera.main.enabled = true;
 
@@ -365,7 +430,7 @@ public class GameManager : Singleton<GameManager>
         RefreshUI();
     }
 
-    private void RefreshUI()
+    private void RefreshUI(bool end = false)
     {
         string best_score = BestScore >= 0 ? string.Format("Meilleur score : {0}", BestScore) : "";
         transform.FindChild("Canvas").FindChild("Money").GetComponent<Text>().text = string.Format("Argent : {0}", Money);
@@ -374,12 +439,35 @@ public class GameManager : Singleton<GameManager>
         transform.FindChild("Canvas").FindChild("Score").GetComponent<Text>().text = string.Format("Score : {0}", Score);
         transform.FindChild("Canvas").FindChild("Wave").GetComponent<Text>().text = string.Format("Vague : {0}", _wave);
 
-        transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = Money >= _weapons_list[1].GetComponent<Weapon>().Price;
-        transform.FindChild("Canvas").FindChild("ButtonShotgun").GetComponent<Button>().interactable = Money >= _weapons_list[5].GetComponent<Weapon>().Price;
-        transform.FindChild("Canvas").FindChild("ButtonFlamethrower").GetComponent<Button>().interactable = Money >= _weapons_list[0].GetComponent<Weapon>().Price;
-        transform.FindChild("Canvas").FindChild("ButtonLaserBlast").GetComponent<Button>().interactable = Money >= _weapons_list[3].GetComponent<Weapon>().Price;
+        bool power_selected = _num_power >= 0;
+        bool show_weapons = !end && !power_selected && !_weapon_selected;
 
-        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = _weapon_selected;
+        transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = show_weapons
+            && Money >= _weapons_list[1].GetComponent<Weapon>().Price 
+            && _weapons[1].GetAllActive().Count < _weapons[1].Size;
+
+        transform.FindChild("Canvas").FindChild("ButtonShotgun").GetComponent<Button>().interactable = show_weapons
+            && Money >= _weapons_list[5].GetComponent<Weapon>().Price 
+            && _weapons[5].GetAllActive().Count < _weapons[5].Size;
+
+        transform.FindChild("Canvas").FindChild("ButtonFlamethrower").GetComponent<Button>().interactable = show_weapons
+            && Money >= _weapons_list[0].GetComponent<Weapon>().Price 
+            && _weapons[0].GetAllActive().Count < _weapons[0].Size;
+
+        transform.FindChild("Canvas").FindChild("ButtonLaserBlast").GetComponent<Button>().interactable = show_weapons
+            && Money >= _weapons_list[3].GetComponent<Weapon>().Price 
+            && _weapons[3].GetAllActive().Count < _weapons[3].Size;
+
+        transform.FindChild("Canvas").FindChild("ButtonRocketLauncher").GetComponent<Button>().interactable = show_weapons
+            && Money >= _weapons_list[4].GetComponent<Weapon>().Price 
+            && _weapons[4].GetAllActive().Count < _weapons[4].Size;
+
+        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = _weapon_selected && !power_selected;
+
+        transform.FindChild("Canvas").FindChild("ButtonFireball").GetComponent<Button>().interactable = !_weapon_selected && !power_selected;
+        transform.FindChild("Canvas").FindChild("ButtonFreeze").GetComponent<Button>().interactable = !_weapon_selected && !power_selected;
+
+        transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = end;
     }
 
     private RaycastHit GetMouseRayPos(bool ignoreTrigger = true, int layer1 = -1, int layer2 = -1, int layer3 = -1)
@@ -478,5 +566,25 @@ public class GameManager : Singleton<GameManager>
             _placing_weapon = true;
             _new_weapon = true;
         }
+    }
+
+    // 0 = Fireball, 1 = Freeze
+    public void BeginPower(int nb)
+    {
+        if(_powerSelection != null)
+        {
+            Color c;
+
+            if (nb == 0)
+                c = Color.red;
+            else
+                c = Color.blue;
+
+            _powerSelection.gameObject.SetActive(true);
+            _powerSelection.transform.FindChild("Base").GetComponent<Renderer>().material.SetColor("_Color", c);
+        }
+
+        _num_power = nb;
+        RefreshUI();
     }
 }

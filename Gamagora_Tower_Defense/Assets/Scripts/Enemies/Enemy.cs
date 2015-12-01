@@ -62,7 +62,7 @@ public class Enemy : MonoBehaviour
         Origin = source;
         Target = target;
  
-        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<Rigidbody>().useGravity = false;
         transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Particle").gameObject.SetActive(true);
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
@@ -139,7 +139,7 @@ public class Enemy : MonoBehaviour
 
     protected IEnumerator StartDead()
     {
-        GetComponent<Rigidbody>().isKinematic = false;
+        GetComponent<Rigidbody>().useGravity = true;
         yield return new WaitForSeconds(TimeBeforeExplode);
 
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
@@ -174,8 +174,18 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        Vector3 target = Path.vectorPath[_waypoint];
+
+        // Check if we are close enough to the next waypoint
+        // If we are, proceed to follow the next waypoint
+        if (Vector3.Distance(transform.position, target) < nextWaypointDistance)
+        {
+            _waypoint++;
+            return;
+        }
+
         // Direction to the next waypoint
-        Vector3 dir = (Path.vectorPath[_waypoint] - transform.position).normalized;
+        Vector3 dir = (target - transform.position).normalized;
         float speed = Speed * Time.deltaTime;
 
         _lookRotation = Quaternion.LookRotation(dir);
@@ -185,14 +195,6 @@ public class Enemy : MonoBehaviour
         Vector3 delta_h = 0.2f * Vector3.up * Mathf.Cos(f);
 
         transform.position = Vector3.Lerp(transform.position, transform.position + dir + Vector3.up * 0.5f + delta_h, speed);
-
-        // Check if we are close enough to the next waypoint
-        // If we are, proceed to follow the next waypoint
-        if (Vector3.Distance(transform.position, Path.vectorPath[_waypoint]) < nextWaypointDistance)
-        {
-            _waypoint++;
-            return;
-        }
     }
 
     public bool IsTargetable()
@@ -230,6 +232,18 @@ public class Enemy : MonoBehaviour
             _targetable = true;
         else if (other.gameObject.tag == "TerrainColliderEnd")
             _targetable = false;
+    }
+
+    public void Freeze(float time)
+    {
+        _move = false;
+        StartCoroutine(WaitEndFreeze(time));
+    }
+
+    private IEnumerator WaitEndFreeze(float time)
+    {
+        yield return new WaitForSeconds(time);
+        _move = true;
     }
 
     ////void OnParticleCollision(GameObject other)
