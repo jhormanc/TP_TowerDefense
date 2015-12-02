@@ -44,7 +44,6 @@ public class Flamethrower : Weapon
     {
         Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
 
-
         StartCoroutine(Fire(shoot_point, null, false));
     }
 

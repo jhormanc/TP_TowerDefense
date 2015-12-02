@@ -17,13 +17,11 @@ public class Fireball : PowerDamage
             {
                 Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();
                 Rigidbody rb = enemy.GetComponent<Rigidbody>();
-                float m = (hit.transform.position - transform.position).magnitude;
-                float force = (m > 0.2f ? 1f / m : 5f) * ExplosionRadius * Damage;
+                float force = ExplosionRadius * Damage;
 
                 enemy.ReceiveDamage(Damage);
-                rb.AddExplosionForce(force * 300f, transform.position, ExplosionRadius * 10f, 1f, ForceMode.Force);
+                rb.AddExplosionForce(force, transform.position, ExplosionRadius * 10f, 0f, ForceMode.Impulse);
             }
         }
     }
-
 }

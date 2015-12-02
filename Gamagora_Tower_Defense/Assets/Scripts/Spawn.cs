@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Spawn : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class Spawn : MonoBehaviour
     public bool SpawnFinished { get; private set; }
 
     public int SpawnSize { get; private set; }
-    private PullManager _spawn;
+    private List<PullManager> _spawns;
     private GameObject _start, _end;
 
     // Use this for initialization
@@ -20,18 +21,19 @@ public class Spawn : MonoBehaviour
         _start =  (GameObject)Instantiate(StartPoint, StartPoint.transform.position, StartPoint.transform.rotation);
         _end = (GameObject)Instantiate(EndPoint, EndPoint.transform.position, EndPoint.transform.rotation);
         transform.position = StartPoint.transform.position;
-        _spawn = null;
         SpawnFinished = false;
         NbEnemies = 0;
+        _spawns = new List<PullManager>();
     }
 
-    public void Init(GameObject enemy, int size)
+    public void Init(GameObject[] enemies, int size)
     {
         SpawnSize = size;
-        if (enemy != null)
+        foreach(GameObject e in enemies)
         {
-            _spawn = ScriptableObject.CreateInstance<PullManager>();
-            _spawn.Init(enemy, SpawnSize);
+            PullManager spawn = ScriptableObject.CreateInstance<PullManager>();
+            spawn.Init(e, SpawnSize);
+            _spawns.Add(spawn);
         }
     }
 
@@ -43,16 +45,25 @@ public class Spawn : MonoBehaviour
 
     public void SetDead(GameObject enemy)
     {
-        _spawn.RemoveObj(enemy);
+        int id = enemy.GetComponent<Enemy>().Id;
+
+        _spawns[id].RemoveObj(enemy);
         NbEnemies--;
     }
 
     private IEnumerator SpawnEnnemis(int wave)
     {
         NbEnemies = SpawnSize;
-        for (int i = 0; i < SpawnSize; i++)
+
+        GameObject o = _spawns[1].GetNextObj();
+        o.SetActive(true);
+        o.GetComponent<Enemy>().Init(_start, _end);
+
+        yield return new WaitForSeconds(SpawnDelay);
+
+        for (int i = 0; i < SpawnSize - 1; i++)
         {
-            GameObject e = _spawn.GetNextObj();
+            GameObject e = _spawns[0].GetNextObj();
             e.SetActive(true);
             e.GetComponent<Enemy>().Init(_start, _end);
             

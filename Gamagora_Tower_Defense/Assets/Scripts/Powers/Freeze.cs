@@ -16,7 +16,6 @@ public class Freeze : PowerDamage
             if (hit.collider.tag == "Enemy")
             {
                 Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();
-                float m = (hit.transform.position - transform.position).magnitude;
                 enemy.ReceiveDamage(Damage);
                 enemy.Freeze(FreezeTime);
             }

@@ -97,7 +97,7 @@ public class GameManager : Singleton<GameManager>
         _new_weapon = false;
         _waveIsStarted = false;
         _main_camera = null;
-        SpawnManager1.Init(_ennemy_list[0], InitialEnemySize);
+        SpawnManager1.Init(_ennemy_list, InitialEnemySize);
         BestScore = -1;
         _num_power = -1;
 
@@ -513,9 +513,7 @@ public class GameManager : Singleton<GameManager>
     {
         yield return new WaitForSeconds(2.5f);
 
-        // TODO others
-        if (enemy.GetComponent<Little1>() != null)
-            SpawnManager1.SetDead(enemy);
+        SpawnManager1.SetDead(enemy);
     }
 
     public void SetDead(GameObject enemy)
@@ -530,8 +528,7 @@ public class GameManager : Singleton<GameManager>
 
     public void RemoveEnemy(GameObject enemy)
     {
-        if (enemy.GetComponent<Little1>() != null)
-            SpawnManager1.SetDead(enemy);
+        SpawnManager1.SetDead(enemy);
     }
 
     public void RemoveTargetFromAllWeapons(GameObject enemy)

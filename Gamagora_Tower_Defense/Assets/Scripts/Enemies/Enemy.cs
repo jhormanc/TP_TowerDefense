@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
     public GameObject Origin;
     public float TimeBeforeExplode;
     public GameObject Explosion;
+    public int Id;
 
     // Vie
     protected float _health;
@@ -22,6 +23,7 @@ public class Enemy : MonoBehaviour
     protected bool _move;
     private bool _targetable;
     protected Quaternion _lookRotation;
+    protected Rigidbody _rb;
 
     // IA
     //The max distance from the AI to a waypoint for it to continue to the next waypoint
@@ -40,7 +42,7 @@ public class Enemy : MonoBehaviour
     }
 
     // Use this for initialization
-    void Awake()
+    protected virtual void Awake()
     {
         _move = true;
         _health = HP;
@@ -50,9 +52,11 @@ public class Enemy : MonoBehaviour
         _seeker = GetComponent<Seeker>();
         if (Explosion != null)
             _explosion = (GameObject)Instantiate(Explosion, transform.position, transform.rotation);
+
+        _rb = GetComponent<Rigidbody>();
     }
 
-    void OnEnable()
+    protected virtual void OnEnable()
     {
         
     }
@@ -66,9 +70,9 @@ public class Enemy : MonoBehaviour
         transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
         transform.FindChild("Particle").gameObject.SetActive(true);
         transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
- 
+
         if (Origin != null)
-            transform.position = Origin.transform.position;
+            _rb.MovePosition(Origin.transform.position);
 
         _health = HP;
         _targetable = false;
@@ -77,10 +81,10 @@ public class Enemy : MonoBehaviour
 
         AstarPath.OnGraphsUpdated += RecalculatePath;
         _seeker.pathCallback += OnPathComplete;
-        _seeker.StartPath(transform.position, Target.transform.position);
+        _seeker.StartPath(GetComponent<Rigidbody>().position, Target.transform.position);
     }
 
-    public void OnDisable()
+    protected virtual void OnDisable()
     {
         _seeker.pathCallback -= OnPathComplete;
         AstarPath.OnGraphsUpdated -= RecalculatePath;
@@ -100,11 +104,11 @@ public class Enemy : MonoBehaviour
 
     public void RecalculatePath(AstarPath script)
     {
-        _seeker.StartPath(transform.position, Target.transform.position);
+        _seeker.StartPath(GetComponent<Rigidbody>().position, Target.transform.position);
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (_health < 0f)
         {
@@ -117,7 +121,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void ReceiveDamage(float damage)
+    public virtual void ReceiveDamage(float damage)
     {
         _health -= damage;
     }
@@ -133,6 +137,8 @@ public class Enemy : MonoBehaviour
         {
             Manager.SetDead(gameObject);
             Dead = true;
+            _move = false;
+            _rb.velocity = Vector3.zero;
             StartCoroutine(StartDead());
         }
     }
@@ -158,18 +164,9 @@ public class Enemy : MonoBehaviour
         }
         if (_waypoint >= Path.vectorPath.Count)
         {
-            if (Vector3.Distance(transform.position, Target.transform.position) <= nextWaypointDistance)
+            if (Vector3.Distance(_rb.position, Target.transform.position) <= nextWaypointDistance)
             {
-                if (_explosion != null)
-                {
-                    transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
-                    transform.FindChild("Particle").gameObject.SetActive(false);
-                    _explosion.transform.position = transform.position;
-                    _explosion.transform.rotation = transform.rotation;
-                    _explosion.GetComponent<ParticleSystem>().Play(true);
-                }
-                Manager.ReceiveDamage(Degats, gameObject);
-                _move = false;
+                Explode();
             }
             return;
         }
@@ -178,23 +175,39 @@ public class Enemy : MonoBehaviour
 
         // Check if we are close enough to the next waypoint
         // If we are, proceed to follow the next waypoint
-        if (Vector3.Distance(transform.position, target) < nextWaypointDistance)
+        if (Vector3.Distance(_rb.position, target) < nextWaypointDistance)
         {
             _waypoint++;
             return;
         }
 
-        // Direction to the next waypoint
-        Vector3 dir = (target - transform.position).normalized;
-        float speed = Speed * Time.deltaTime;
-
-        _lookRotation = Quaternion.LookRotation(dir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, _lookRotation, speed);
-
         float f = Time.realtimeSinceStartup * 4f * Speed;
         Vector3 delta_h = 0.2f * Vector3.up * Mathf.Cos(f);
 
-        transform.position = Vector3.Lerp(transform.position, transform.position + dir + Vector3.up * 0.5f + delta_h, speed);
+        target = target + Vector3.up * 1.5f + delta_h;
+        // Direction to the next waypoint
+        Vector3 dir = (target - _rb.position).normalized;
+        float speed = Speed * Time.deltaTime;
+
+        _lookRotation = Quaternion.LookRotation(dir);
+
+        _rb.MoveRotation(_lookRotation);
+        _rb.velocity = 50f * dir * speed;
+    }
+
+    protected virtual void Explode()
+    {
+        if (_explosion != null)
+        {
+            transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
+            transform.FindChild("Particle").gameObject.SetActive(false);
+            _explosion.transform.position = _rb.position;
+            _explosion.transform.rotation = _rb.rotation;
+            _explosion.GetComponent<ParticleSystem>().Play(true);
+        }
+        Manager.ReceiveDamage(Degats, gameObject);
+        _rb.velocity = Vector3.zero;
+        _move = false;
     }
 
     public bool IsTargetable()
@@ -237,6 +250,7 @@ public class Enemy : MonoBehaviour
     public void Freeze(float time)
     {
         _move = false;
+        _rb.velocity = Vector3.zero;
         StartCoroutine(WaitEndFreeze(time));
     }
 
