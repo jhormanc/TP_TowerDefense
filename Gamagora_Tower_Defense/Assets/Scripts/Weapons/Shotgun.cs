@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public class Shotgun : Weapon
@@ -36,11 +37,12 @@ public class Shotgun : Weapon
 
     protected override void Fire()
     {
+        
         Transform canon = GetCannon();
         Transform shoot = canon.FindChild("Shoot");
         GameObject bullet = _bullets.GetNextObj();
         bullet.SetActive(true);
-
+        EmitParticle(true);
         canon.Translate(new Vector3(0f, 0f, -0.2f), Space.Self);
         StartCoroutine(Fire(shoot, bullet, false));      
 
@@ -106,4 +108,33 @@ public class Shotgun : Weapon
         return _selected_cannon ? _particle1 : _particle2;
     }
 
+    public override Audio_Type GetNewWeaponAudioType()
+    {
+        return Audio_Type.NewShotgun;
+    }
+
+    protected override void PlayFireSound(bool stop = false)
+    {
+        if (_key_shoot_sound >= 0 && stop)
+        {
+            _soundManager.stop(_key_shoot_sound);
+            _key_shoot_sound = -1;
+        }
+        else
+        {
+            Hashtable param = new Hashtable();
+            param.Add("position", _tourelle.position);
+            param.Add("loop", false);
+            param.Add("spatialBlend", 0.5f);
+            _key_shoot_sound = _soundManager.PlayAudio(Audio_Type.RocketLauncherShoot, param);
+            StartCoroutine(StopSound(0.5f, _key_shoot_sound));
+        }
+    }
+
+    private IEnumerator StopSound(float time, int key)
+    {
+        yield return new WaitForSeconds(time);
+
+        _soundManager.stop(key);
+    }
 }

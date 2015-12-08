@@ -45,7 +45,7 @@ public class Spawn : MonoBehaviour
 
     public void SetDead(GameObject enemy)
     {
-        int id = enemy.GetComponent<Enemy>().Id;
+        int id = enemy.GetComponent<Enemy>().IdEnemy;
 
         _spawns[id].RemoveObj(enemy);
         NbEnemies--;

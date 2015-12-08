@@ -107,4 +107,22 @@ public class Rocket : Ammo
     {
         _delta = new Vector3(Random.Range(-error, error), 0f, Random.Range(-error, error));
     }
+
+    protected override void PlayExplosionSound()
+    {
+        Hashtable param = new Hashtable();
+        param.Add("position", transform.position);
+        param.Add("spatialBlend", 0.5f);
+        param.Add("volume", 1f);
+        int key = _soundManager.PlayAudio(Audio_Type.ExplosionMissile, param);
+        _soundManager.Fade(key, 0.5f, 0f);
+        StartCoroutine(StopSound(0.5f, key));
+    }
+
+    private IEnumerator StopSound(float time, int key)
+    {
+        yield return new WaitForSeconds(time);
+
+        _soundManager.stop(key);
+    }
 }

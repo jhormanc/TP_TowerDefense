@@ -1,17 +1,40 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.Audio;
 
 public class AudioData : MonoBehaviour
 {
-	// Use this for initialization
-	void Start ()
+    [SerializeField]
+    AudioClip[] AudioClips;
+
+    public AudioMixerGroup DefaultMixerGroup;
+    public Audio_Type Type;
+    public bool PlayRandom;
+
+    private int _lastPlayed;
+
+
+    void Start()
     {
-	
-	}
-	
-	// Update is called once per frame
-	void Update ()
+        _lastPlayed = 0;
+
+        SoundManager.Instance.RegisterAudioData(Type, this);
+    }
+
+
+    public AudioClip GetClip()
     {
-	
-	}
+        AudioClip clip;
+
+        if (PlayRandom)
+        {
+            clip = AudioClips[(int)Mathf.Floor(Random.value * AudioClips.Length)];
+        }
+        else
+        {
+            int idx = _lastPlayed = _lastPlayed == AudioClips.Length - 1 ? 0 : _lastPlayed + 1;
+            clip = AudioClips[idx];
+        }
+
+        return clip;
+    }
 }

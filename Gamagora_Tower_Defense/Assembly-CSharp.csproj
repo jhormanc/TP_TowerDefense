@@ -64,6 +64,7 @@
      <Compile Include="Assets\Scripts\PullManager.cs" />
      <Compile Include="Assets\Scripts\Singleton.cs" />
      <Compile Include="Assets\Scripts\Sounds\AudioData.cs" />
+     <Compile Include="Assets\Scripts\Sounds\AudioSrc.cs" />
      <Compile Include="Assets\Scripts\Sounds\SoundManager.cs" />
      <Compile Include="Assets\Scripts\Spawn.cs" />
      <Compile Include="Assets\Scripts\Weapons\Flamethrower.cs" />

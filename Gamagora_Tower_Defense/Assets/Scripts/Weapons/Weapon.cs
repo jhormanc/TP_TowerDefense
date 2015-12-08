@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Pathfinding;
 
-public class Weapon : MonoBehaviour
+public abstract class Weapon : MonoBehaviour
 {
     public class EnemySort : IComparer
     {
@@ -26,9 +26,13 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    public abstract Audio_Type GetNewWeaponAudioType();
+    protected abstract void PlayFireSound(bool stop = false);
+
     public enum AimType { First, Last, Strongest };
 
     protected GameManager Manager;
+    protected SoundManager _soundManager;
 
     // Values that will be set in the Inspector
     public float Range;
@@ -45,7 +49,7 @@ public class Weapon : MonoBehaviour
     public int NodesSize; // Nombre de nodes dans le pull
     public GameObject Node; // Prefab d'un node
     public int MaxWeaponsInTheSameTime;
-    public int Id; // Ordre dans le dossier Prefab/Weapons
+    public int IdWeapon; // Ordre dans le dossier Prefab/Weapons
 
     // Values for internal use
     protected static readonly float DeltaRot = 0.3f;
@@ -75,11 +79,16 @@ public class Weapon : MonoBehaviour
     protected Transform _cannon;
     protected Transform _shoot;
     protected Transform _camera;
-    protected ParticleSystem _particles;
+    protected ParticleSystem _particle;
+
+    // Sounds
+    protected int _key_shoot_sound;
 
     // Use this for initialization
     protected virtual void Awake()
     {
+        _key_shoot_sound = -1;
+        _soundManager = SoundManager.Instance;
         _camera = transform.FindChild("Camera");
         _base = transform.FindChild("Base");
         _tourelle = _base.FindChild("Tourelle");
@@ -101,7 +110,7 @@ public class Weapon : MonoBehaviour
             p = _cannon.FindChild("Particle");
 
         if(p != null)
-            _particles = p.GetComponent<ParticleSystem>();
+            _particle = p.GetComponent<ParticleSystem>();
 
         _direction = new Vector3();
         _angleRotation = 0f;
@@ -141,6 +150,7 @@ public class Weapon : MonoBehaviour
         if ((Auto && !_lastFire && _targets.Count > 0 && CanFire()) || (!Auto && Input.GetKeyDown(KeyCode.F)))
         {
             _fire = true;
+            SetFire();
         }
         else if ((Auto && _lastFire && (_targets.Count == 0 || !CanFire())) || (!Auto && Input.GetKeyUp(KeyCode.F)))
         {
@@ -154,7 +164,7 @@ public class Weapon : MonoBehaviour
   
         if (_fire && _allowFire && CanFire())
         {
-            SetFire();
+
             Fire();
         }
     }
@@ -196,14 +206,8 @@ public class Weapon : MonoBehaviour
     void SetFire()
     {
         EmitParticle(_fire);
-        AudioSource audio = GetComponent<AudioSource>();
-        if (audio != null)
-        {
-            if (_fire)
-                audio.Play();
-            else
-                audio.Stop();
-        }
+        if(!_fire)
+            PlayFireSound(true);
     }
 
     protected virtual void Fire()
@@ -257,6 +261,8 @@ public class Weapon : MonoBehaviour
                 }
             }
         }
+
+        PlayFireSound();
 
         yield return new WaitForSeconds(1f / FireRate);
 
@@ -368,9 +374,9 @@ public class Weapon : MonoBehaviour
 
     protected virtual void EmitParticle(bool emit)
     {
-        _particles.enableEmission = emit;
-        _particles.transform.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
-        _particles.transform.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
+        _particle.enableEmission = emit;
+        _particle.transform.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
+        _particle.transform.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
     }
 
     public Transform GetTarget()

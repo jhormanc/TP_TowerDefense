@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class LaserBlast : Weapon
 {
@@ -11,7 +12,7 @@ public class LaserBlast : Weapon
     protected override void Fire()
     {
         GameObject bullet = _bullets.GetNextObj();
-        
+        _particle.Play(true);
         StartCoroutine(WaitEffectFire(_cannon, bullet, false));
     }
 
@@ -53,11 +54,19 @@ public class LaserBlast : Weapon
 
     protected override void EmitParticle(bool emit)
     {
-        _particles.enableEmission = emit;
+        _particle.enableEmission = emit;
 
-        if (emit)
-            _particles.Play();
-        else
-            _particles.Stop();
+        if (!emit)
+            _particle.Stop(true);
+    }
+
+    public override Audio_Type GetNewWeaponAudioType()
+    {
+        return Audio_Type.NewLaserBlast;
+    }
+
+    protected override void PlayFireSound(bool stop = false)
+    {
+        // TODO
     }
 }

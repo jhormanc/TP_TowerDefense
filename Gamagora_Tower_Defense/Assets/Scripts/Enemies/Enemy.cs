@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour
     public GameObject Origin;
     public float TimeBeforeExplode;
     public GameObject Explosion;
-    public int Id;
+    public int IdEnemy;
 
     // Vie
     protected float _health;
@@ -38,6 +38,8 @@ public class Enemy : MonoBehaviour
     protected ParticleSystem _flash;
     protected ParticleSystem _particles;
 
+    private SoundManager _soundManager;
+
     public Enemy()
     {
 
@@ -46,6 +48,7 @@ public class Enemy : MonoBehaviour
     // Use this for initialization
     protected virtual void Awake()
     {
+        _soundManager = SoundManager.Instance;
         _move = true;
         _health = HP;
         Dead = false;
@@ -151,11 +154,16 @@ public class Enemy : MonoBehaviour
     {
         GetComponent<Rigidbody>().useGravity = true;
         yield return new WaitForSeconds(TimeBeforeExplode);
-
+        Hashtable param = new Hashtable();
+        param.Add("position", transform.position);
+        //param.Add("pitch", 2f);
+        param.Add("volume", 0.5f);
+        _soundManager.PlayAudio(Audio_Type.EnemyExplosion, param);
         _particles.Stop();
         _particles.gameObject.SetActive(false);
         _flash.Play();
         yield return new WaitForSeconds(0.3f);
+        
         Manager.RemoveEnemy(gameObject);
     }
 

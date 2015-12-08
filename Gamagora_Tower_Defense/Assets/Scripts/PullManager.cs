@@ -7,37 +7,34 @@ public class PullManager : ScriptableObject
     public int Size { get; private set; }
 
     private List<GameObject> _objects;
-    private int _object_nb;
+    private GameObject _template;
 
     public PullManager()
     {
-        _object_nb = -1;
+
     }
 
-    public void Init(GameObject src, int size)
+    public void Init(GameObject src, int size, int max_size)
     {
         Size = size;
-
+        _template = src;
         _objects = new List<GameObject>();
 
         if (src != null)
         {
-            _objects.Capacity = Size;
+            _objects.Capacity = max_size;
 
             for (int i = 0; i < Size; i++)
             {
-                _objects.Add(Instantiate(src));
+                _objects.Add(Instantiate(_template));
                 _objects[i].SetActive(false);
             }
         }
     }
 
-    private void SetNextObj()
+    public void Init(GameObject src, int size)
     {
-        if (_object_nb < Size - 1)
-            _object_nb++;
-        else
-            _object_nb = 0;
+        Init(src, size, size);
     }
 
     public void RemoveObj(GameObject obj)
@@ -58,21 +55,26 @@ public class PullManager : ScriptableObject
         return _objects.FindAll(x => x.activeSelf);
     }
 
-    public GameObject GetNextObj()
+    public GameObject GetNextObj(bool expand = false)
     {
-        SetNextObj();
-        GameObject obj = GetCurrentObj();
-        UnityEditor.PrefabUtility.ResetToPrefabState(obj);
-        return obj;
-    }
+        GameObject next = _objects.Find(x => x.activeSelf == false);
 
-	public GameObject GetCurrentObj()
-    {
-        if (_object_nb >= 0 && _object_nb < _objects.Count)
+        if (next == null && expand && Size < _objects.Capacity)
         {
-            return _objects[_object_nb];
+            _objects.Add(Instantiate(_template));
+            _objects[Size].SetActive(false);
+            next = _objects[Size];
+            Size++;
         }
 
-        return null;
+        if(next == null)
+        {
+            next = _objects.Find(x => x.activeSelf);
+            next.SetActive(false);
+        }
+            
+        
+        UnityEditor.PrefabUtility.ResetToPrefabState(next);
+        return next;
     }
 }

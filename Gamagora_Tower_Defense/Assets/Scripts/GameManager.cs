@@ -13,6 +13,7 @@ public class GameManager : Singleton<GameManager>
     private static readonly string BestScoreKey = "BestScore";
 
     public GameObject Terrain;
+    private SoundManager _soundManager;
 
     // Player
     public bool WaveIsOver;
@@ -70,6 +71,8 @@ public class GameManager : Singleton<GameManager>
     // Use this for initialization
     void Awake()
     {
+        _soundManager = SoundManager.Instance;
+
         Transform c = transform.FindChild("Canvas");
         _bt_gatling = c.FindChild("ButtonGatling").GetComponent<Button>();
         _bt_flamethrower = c.FindChild("ButtonFlamethrower").GetComponent<Button>();
@@ -206,6 +209,15 @@ public class GameManager : Singleton<GameManager>
 
                             if (_new_weapon)
                             {
+                                Audio_Type type = _temp_weapon.GetComponent<Weapon>().GetNewWeaponAudioType();
+
+                                if(type != Audio_Type.NULL)
+                                {
+                                    Hashtable param = new Hashtable();
+                                    param.Add("position", Camera.main.transform.position + Camera.main.transform.up * 2f);
+                                    _soundManager.PlayAudio(type, param);
+                                }
+
                                 PlayNewWeaponEffect(_temp_weapon.transform, Color.white);
                                 Money -= _temp_weapon.GetComponent<Weapon>().Price;
 
@@ -238,7 +250,7 @@ public class GameManager : Singleton<GameManager>
                     _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, false);
                     ShowGrid(false);
                     _placing_weapon = false;
-                    _weapons[_temp_weapon.GetComponent<Weapon>().Id].RemoveObj(_temp_weapon);
+                    _weapons[_temp_weapon.GetComponent<Weapon>().IdWeapon].RemoveObj(_temp_weapon);
                     _temp_weapon = null;
                     _new_weapon = false;
                 }
@@ -261,14 +273,22 @@ public class GameManager : Singleton<GameManager>
                         if(Input.GetMouseButtonDown(0))
                         {
                             GameObject power = _powers[_num_power].GetNextObj();
-                            if (_num_power == 0)
+                            Hashtable param = new Hashtable();
+                            param.Add("position", power.transform.position);
+
+                            if (_num_power == 0) // Fireball
                             {
                                 power.transform.position = Camera.main.transform.position - Vector3.forward * 8f;
                                 Vector3 dir = _powerSelection.transform.position - power.transform.position;
                                 power.transform.rotation = Quaternion.LookRotation(dir);
+                                
+                                _soundManager.PlayAudio(Audio_Type.Fireball, param);
                             }
-                            else if (_num_power == 1)
+                            else if (_num_power == 1) // Freeze
+                            {
                                 power.transform.position = _powerSelection.transform.position + Vector3.up;
+                                _soundManager.PlayAudio(Audio_Type.Freeze, param);
+                            }
 
                             power.SetActive(true);
                             power.GetComponent<ParticleSystem>().Play();

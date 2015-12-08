@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public class RocketLauncher : Weapon
@@ -140,5 +141,36 @@ public class RocketLauncher : Weapon
             return _particle6;
         else
             return _particle1;
+    }
+
+    public override Audio_Type GetNewWeaponAudioType()
+    {
+        return Audio_Type.NewRocketLauncher;
+    }
+
+    protected override void PlayFireSound(bool stop = false)
+    {
+        if (stop)
+        {
+            _soundManager.stop(_key_shoot_sound);
+            _key_shoot_sound = -1;
+        }
+        else
+        {
+            Hashtable param = new Hashtable();
+            param.Add("position", _tourelle.position);
+            //param.Add("pitch", FireRate / 7f);
+            param.Add("loop", false);
+            param.Add("spatialBlend", 0.5f);
+            _key_shoot_sound = _soundManager.PlayAudio(Audio_Type.RocketLauncherShoot, param);
+            StartCoroutine(StopSound(0.5f, _key_shoot_sound));
+        }
+    }
+
+    private IEnumerator StopSound(float time, int key)
+    {
+        yield return new WaitForSeconds(time);
+
+        _soundManager.stop(key);
     }
 }

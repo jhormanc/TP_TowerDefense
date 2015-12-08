@@ -1,6 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum Audio_Type
+{
+    NULL, // Valeur NULL
+    Music,
+    Ambient,
+    Voice,
+    Fireball,
+    Freeze,
+    NewGatling,
+    NewFlamethrower,
+    NewShotgun,
+    NewLaserBlast,
+    NewRocketLauncher,
+    GatlingShoot,
+    ShotgunShoot,
+    RocketLauncherShoot,
+    LaserBlastShoot,
+    BombOnTerrain,
+    MissileTargeting,
+    Flame,
+    ExplosionBomb,
+    ExplosionMissile,
+    EnemyExplosion,
+}
+
 public static class General
 {
     public static void ChangeMaterialForAllChild(Transform b, Material mat, string[] expect = null)

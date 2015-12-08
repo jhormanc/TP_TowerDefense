@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 
 public class Generator : Weapon
 {
@@ -55,4 +55,13 @@ public class Generator : Weapon
             p.GetComponent<ParticleSystem>().Emit(1);
     }
 
+    public override Audio_Type GetNewWeaponAudioType()
+    {
+        return Audio_Type.NULL;
+    }
+
+    protected override void PlayFireSound(bool stop = false)
+    {
+        // TODO
+    }
 }

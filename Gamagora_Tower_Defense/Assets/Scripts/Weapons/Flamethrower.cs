@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Flamethrower : Weapon
 {
@@ -54,5 +55,34 @@ public class Flamethrower : Weapon
         else
             p.GetComponent<ParticleSystem>().Stop();
 
+    }
+
+    public override Audio_Type GetNewWeaponAudioType()
+    {
+        return Audio_Type.NewFlamethrower;
+    }
+
+    protected override void PlayFireSound(bool stop = false)
+    {
+        if (_key_shoot_sound >= 0 && stop)
+        {
+            _soundManager.Fade(_key_shoot_sound, 0.5f, 0f);
+            Invoke("StopFire", 0.5f);
+        }
+        else if (_key_shoot_sound == -1 && !stop)
+        {
+            Hashtable param = new Hashtable();
+            param.Add("position", _tourelle.position);
+            param.Add("loop", true);
+            param.Add("volume", 0.5f);
+            _key_shoot_sound = _soundManager.PlayAudio(Audio_Type.Flame, param);
+            _soundManager.Fade(_key_shoot_sound, 0.5f, 1f);
+        }
+    }
+
+    private void StopFire()
+    {
+        _soundManager.stop(_key_shoot_sound);
+        _key_shoot_sound = -1;
     }
 }

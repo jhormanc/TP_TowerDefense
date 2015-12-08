@@ -17,11 +17,13 @@ public class Ammo : MonoBehaviour
     protected GameObject _hit_effect;
 
     protected Transform _base;
+    protected SoundManager _soundManager;
     
     // Use this for initialization
     protected virtual void Awake()
     {
-        _hit_effect = Instantiate(HitEffect);
+        _soundManager = SoundManager.Instance;
+        _hit_effect = (GameObject)Instantiate(HitEffect, transform.position, transform.rotation);
         _base = transform.FindChild("Base");
     }
 	
@@ -52,6 +54,7 @@ public class Ammo : MonoBehaviour
     {
         if (_hit_effect != null && !_hit_effect.GetComponent<ParticleSystem>().isPlaying)
         {
+            _hit_effect.SetActive(true);
             _hit_effect.transform.position = pos;
             _hit_effect.transform.rotation = rot;
             _hit_effect.GetComponent<ParticleSystem>().Play(true);
@@ -62,22 +65,24 @@ public class Ammo : MonoBehaviour
         _base.gameObject.SetActive(false);
 
         if(stop && gameObject.activeSelf)
-            StartCoroutine(Stop());
+            Invoke("Stop", DelayAfterHit);
     }
 
-    IEnumerator Stop()
+    void Stop()
     {
-        yield return new WaitForSeconds(DelayAfterHit);
-
         if (_hit_effect != null)
+        {
             _hit_effect.GetComponent<ParticleSystem>().Stop(true);
+            _hit_effect.SetActive(false);
+        }
+            
         gameObject.SetActive(false);
     }
 
     protected virtual void Explode()
     {
         RaycastHit[] hits = Physics.SphereCastAll(new Ray(_hit_effect.transform.position, _hit_effect.transform.forward), ExplosionRadius);
-
+        PlayExplosionSound();
         for (int i = 0; i < hits.Length; i++)
         {
             RaycastHit hit = hits[i];
@@ -91,5 +96,10 @@ public class Ammo : MonoBehaviour
                 enemy.ReceiveDamage(Source.GetComponent<Weapon>().CalculateDamage(gameObject, enemy, true));
             }
         }
+    }
+
+    protected virtual void PlayExplosionSound()
+    {
+        // à implémenter dans les classes filles
     }
 }
