@@ -17,19 +17,15 @@ public class Flamethrower : Weapon
 
     protected override void Move()
     {
-        Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
-        Transform head = tourelle.FindChild("Head");
-        Transform cannon = head.FindChild("Cannon");
-
         Transform target = GetTarget();
         Vector3 target_pos = Vector3.zero;
 
         if (target != null)
         {
-            float fire_speed = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle").GetComponent<ParticleDamage>().GetSpeed();
+            float fire_speed = _cannon.FindChild("Particle").GetComponent<ParticleDamage>().GetSpeed();
             target_pos = target.position;
 
-            target_pos += (target.position - head.position).magnitude
+            target_pos += (target.position - _head.position).magnitude
                              * target.forward
                              * target.GetComponent<Enemy>().Speed
                              / (fire_speed * 3f);
@@ -37,19 +33,17 @@ public class Flamethrower : Weapon
             Debug.DrawLine(target_pos, target_pos + target.forward);
         }
 
-        Move(tourelle, head, cannon, target_pos);
+        Move(_tourelle, _head, _cannon, target_pos);
     }
 
     protected override void Fire()
     {
-        Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon");
-
-        StartCoroutine(Fire(shoot_point, null, false));
+        StartCoroutine(Fire(_cannon, null, false));
     }
 
     protected override void EmitParticle(bool emit)
     {
-        Transform p = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle");
+        Transform p = _cannon.FindChild("Particle");
 
         p.GetComponent<ParticleSystem>().enableEmission = emit;
         p.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;

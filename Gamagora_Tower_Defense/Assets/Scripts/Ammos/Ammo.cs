@@ -15,11 +15,14 @@ public class Ammo : MonoBehaviour
     public float DegatsExplode;
 
     protected GameObject _hit_effect;
+
+    protected Transform _base;
     
     // Use this for initialization
     protected virtual void Awake()
     {
         _hit_effect = Instantiate(HitEffect);
+        _base = transform.FindChild("Base");
     }
 	
 	// Update is called once per frame
@@ -30,7 +33,7 @@ public class Ammo : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        transform.FindChild("Base").gameObject.SetActive(true);
+        _base.gameObject.SetActive(true);
         GetComponent<Collider>().enabled = true;
     }
 
@@ -56,7 +59,7 @@ public class Ammo : MonoBehaviour
                 Explode();
         }
         GetComponent<Collider>().enabled = false;
-        transform.FindChild("Base").gameObject.SetActive(false);
+        _base.gameObject.SetActive(false);
 
         if(stop && gameObject.activeSelf)
             StartCoroutine(Stop());

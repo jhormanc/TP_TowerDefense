@@ -68,9 +68,41 @@ public class Weapon : MonoBehaviour
     // Nodes
     protected PullManager _nodes;
 
+    // Transform
+    protected Transform _base;
+    protected Transform _tourelle;
+    protected Transform _head;
+    protected Transform _cannon;
+    protected Transform _shoot;
+    protected Transform _camera;
+    protected ParticleSystem _particles;
+
     // Use this for initialization
     protected virtual void Awake()
     {
+        _camera = transform.FindChild("Camera");
+        _base = transform.FindChild("Base");
+        _tourelle = _base.FindChild("Tourelle");
+        _head = _tourelle.FindChild("Head");
+
+        if (_head != null)
+            _cannon = _head.FindChild("Cannon");
+        else
+            _cannon = _tourelle.FindChild("Cannon");
+
+        if (_cannon != null)
+            _shoot = _cannon.FindChild("Shoot");
+
+        Transform p = _tourelle.FindChild("Particle");
+
+        if (p == null && _head != null)
+            p = _head.FindChild("Particle");
+        if (p == null && _cannon != null)
+            p = _cannon.FindChild("Particle");
+
+        if(p != null)
+            _particles = p.GetComponent<ParticleSystem>();
+
         _direction = new Vector3();
         _angleRotation = 0f;
         _fire = false;
@@ -158,10 +190,7 @@ public class Weapon : MonoBehaviour
         if (!Auto)
             return true;
 
-        Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
-        Transform head = tourelle.FindChild("Head");
-
-        return _targets.Count > 0 && ((GameObject)_targets[0]).GetComponent<Enemy>().IsTargetable() && Quaternion.Angle(head != null ? head.rotation : tourelle.rotation, _lookRotation) < 5f;
+        return _targets.Count > 0 && ((GameObject)_targets[0]).GetComponent<Enemy>().IsTargetable() && Quaternion.Angle(_head != null ? _head.rotation : _tourelle.rotation, _lookRotation) < 5f;
     }
 
     void SetFire()
@@ -179,7 +208,6 @@ public class Weapon : MonoBehaviour
 
     protected virtual void Fire()
     {
-        Transform shoot_point = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon").FindChild("Shoot");
         GameObject bullet = null;
 
         if (_bullets != null)
@@ -188,7 +216,7 @@ public class Weapon : MonoBehaviour
             bullet.SetActive(true);
         }
 
-        StartCoroutine(Fire(shoot_point, bullet, true));
+        StartCoroutine(Fire(_shoot, bullet, true));
     }
 
     public void ChangeAim(AimType new_aim)
@@ -286,9 +314,8 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            Transform cam = transform.FindChild("Camera").GetComponent<Camera>().transform;
             Transform h = (head != null ? head : tourelle.FindChild("Cannon"));
-            Vector3 dir = (h.position - cam.position);
+            Vector3 dir = (h.position - _camera.position);
 
             if (Input.GetKey(KeyCode.Z) && _angleRotation < 90f)
             {
@@ -316,22 +343,19 @@ public class Weapon : MonoBehaviour
 
             
             Vector3 aim = h.position + h.transform.forward * 5f;
-            Quaternion cam_look = Quaternion.LookRotation((aim - cam.position).normalized);
+            Quaternion cam_look = Quaternion.LookRotation((aim - _camera.position).normalized);
             Vector3 cam_pos = h.position - dir.magnitude * h.forward;
 
             float speed = 5f;
 
-            cam.rotation = Quaternion.Slerp(cam.rotation, cam_look, Time.deltaTime * speed);
-            cam.position = Vector3.Slerp(cam.position, cam_pos + cam.up, Time.deltaTime * speed);
+            _camera.rotation = Quaternion.Slerp(_camera.rotation, cam_look, Time.deltaTime * speed);
+            _camera.position = Vector3.Slerp(_camera.position, cam_pos + _camera.up, Time.deltaTime * speed);
         }
     }
 
     protected virtual void Move()
     {
-        Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
-        Transform look = tourelle.FindChild("Cannon").FindChild("Shoot");
-
-        Move(tourelle, null, look);
+        Move(_tourelle, null, _shoot);
     }
 
     protected virtual void LvlUp()
@@ -344,10 +368,9 @@ public class Weapon : MonoBehaviour
 
     protected virtual void EmitParticle(bool emit)
     {
-        Transform p = transform.FindChild("Base").FindChild("Tourelle").FindChild("Particle");
-        p.GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
+        _particles.enableEmission = emit;
+        _particles.transform.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
+        _particles.transform.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
     }
 
     public Transform GetTarget()

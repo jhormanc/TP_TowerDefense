@@ -14,15 +14,12 @@ public class Tourelle : Weapon
     {
         base.Update();
 
-        Transform canon = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon");
-
-        canon.localRotation = Quaternion.Slerp(canon.localRotation, _canonRotation, Time.deltaTime * FireRate);
+        _cannon.localRotation = Quaternion.Slerp(_cannon.localRotation, _canonRotation, Time.deltaTime * FireRate);
 
     }
 
     protected override void Fire()
     {
-        Transform canon = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon");
         GameObject bullet = null;
 
         if (_bullets != null)
@@ -32,10 +29,10 @@ public class Tourelle : Weapon
             bullet.SetActive(true);
         }
 
-        StartCoroutine(Fire(canon.FindChild("Shoot"), bullet, true));
+        StartCoroutine(Fire(_shoot, bullet, true));
         StartCoroutine(DisableBulletEffect(bullet, 2f));
 
-        _canonRotation = canon.localRotation * Quaternion.Euler(0f, 0f, 45f);
+        _canonRotation = _cannon.localRotation * Quaternion.Euler(0f, 0f, 45f);
     }
 
     protected IEnumerator DisableBulletEffect(GameObject bullet, float delayTime)

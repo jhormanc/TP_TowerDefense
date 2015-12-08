@@ -9,6 +9,12 @@ public class Shotgun : Weapon
     private Vector3 _z_cannon1, _z_cannon2;
     private float _lerp_pos1, _lerp_pos2;
 
+    // Transform
+    private Transform _cannon1;
+    private Transform _cannon2;
+    private ParticleSystem _particle1;
+    private ParticleSystem _particle2;
+
     public Shotgun() : base()
     {
         _selected_cannon = true;
@@ -18,10 +24,14 @@ public class Shotgun : Weapon
 
     protected override void Awake()
     {
+        _head = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head");
+        _cannon1 = _head.FindChild("Cannon_1");
+        _cannon2 = _head.FindChild("Cannon_2");
+        _particle1 = _cannon1.FindChild("Particle").GetComponent<ParticleSystem>();
+        _particle2 = _cannon2.FindChild("Particle").GetComponent<ParticleSystem>();
+        _z_cannon1 = _cannon1.localPosition;
+        _z_cannon2 = _cannon2.localPosition;
         base.Awake();
-        Transform head = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head");
-        _z_cannon1 = head.FindChild("Cannon_1").localPosition;
-        _z_cannon2 = head.FindChild("Cannon_2").localPosition;
     }
 
     protected override void Fire()
@@ -39,23 +49,18 @@ public class Shotgun : Weapon
 
     protected override void Move()
     {
-        Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
-        Transform head = tourelle.FindChild("Head");
-        Transform cannon1 = head.FindChild("Cannon_1");
-        Transform cannon2 = head.FindChild("Cannon_2");
-
-        if (cannon1.localPosition != _z_cannon1)
+        if (_cannon1.localPosition != _z_cannon1)
         {
             _lerp_pos1 += Time.deltaTime / LerpTime;
-            cannon1.localPosition = Vector3.Lerp(cannon1.localPosition, _z_cannon1, _lerp_pos1);
+            _cannon1.localPosition = Vector3.Lerp(_cannon1.localPosition, _z_cannon1, _lerp_pos1);
         }
         else
             _lerp_pos1 = 0f;
 
-        if (cannon2.localPosition != _z_cannon2)
+        if (_cannon2.localPosition != _z_cannon2)
         {
             _lerp_pos2 += Time.deltaTime / LerpTime;
-            cannon2.localPosition = Vector3.Lerp(cannon2.localPosition, _z_cannon2, _lerp_pos2);
+            _cannon2.localPosition = Vector3.Lerp(_cannon2.localPosition, _z_cannon2, _lerp_pos2);
         }
         else
             _lerp_pos2 = 0f;
@@ -67,7 +72,7 @@ public class Shotgun : Weapon
         {
             target_pos = target.position;
 
-            target_pos += (target.position - head.position).magnitude
+            target_pos += (target.position - _head.position).magnitude
                              * target.forward
                              * target.GetComponent<Enemy>().Speed
                              / (BulletSpeed * 0.15f);
@@ -75,28 +80,30 @@ public class Shotgun : Weapon
             Debug.DrawLine(target_pos, target_pos + target.forward);
         }
 
-        Move(tourelle, head, null, target_pos);
+        Move(_tourelle, _head, null, target_pos);
     }
 
     protected override void EmitParticle(bool emit)
     {
-        Transform p = GetCannon().FindChild("Particle");
+        ParticleSystem p = GetParticles();
 
-        p.GetComponent<ParticleSystem>().enableEmission = emit;
+        if(p != null)
+        {
+            p.enableEmission = emit;
 
-        if (emit)
-            p.GetComponent<ParticleSystem>().Emit(100);
+            if (emit)
+                p.Emit(100);
+        }
     }
 
     private Transform GetCannon()
     {
-        Transform head = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head");
-        Transform canon = null;
+        return _selected_cannon ? _cannon1 : _cannon2;
+    }
 
-        if(head != null)
-            canon = _selected_cannon ? head.FindChild("Cannon_1") : head.FindChild("Cannon_2");
-
-        return canon;
+    private ParticleSystem GetParticles()
+    {
+        return _selected_cannon ? _particle1 : _particle2;
     }
 
 }

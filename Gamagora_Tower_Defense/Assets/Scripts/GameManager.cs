@@ -49,12 +49,46 @@ public class GameManager : Singleton<GameManager>
     public int InitialEnemySize;
     private static GameObject[] _ennemy_list;
     private int _wave;
-    
+
+    // UI
+    private Button _bt_gatling;
+    private Button _bt_flamethrower;
+    private Button _bt_shotgun;
+    private Button _bt_laserblast;
+    private Button _bt_rocketlauncher;
+    private Button _bt_camera;
+    private Button _bt_retry;
+    private Button _bt_fireball;
+    private Button _bt_freeze;
+    private Text _txt_money;
+    private Text _txt_score;
+    private Text _txt_hp;
+    private Text _txt_wave;
+    private Text _txt_bestscore;
+
 
     // Use this for initialization
     void Awake()
     {
-         SpawnManager1 = GetComponent<Spawn>();
+        Transform c = transform.FindChild("Canvas");
+        _bt_gatling = c.FindChild("ButtonGatling").GetComponent<Button>();
+        _bt_flamethrower = c.FindChild("ButtonFlamethrower").GetComponent<Button>();
+        _bt_shotgun = c.FindChild("ButtonShotgun").GetComponent<Button>();
+        _bt_laserblast = c.FindChild("ButtonLaserBlast").GetComponent<Button>();
+        _bt_rocketlauncher = c.FindChild("ButtonRocketLauncher").GetComponent<Button>();
+
+        _bt_camera = c.FindChild("ButtonCamera").GetComponent<Button>();
+        _bt_retry = c.FindChild("ButtonRetry").GetComponent<Button>();
+        _bt_fireball = c.FindChild("ButtonFireball").GetComponent<Button>();
+        _bt_freeze = c.FindChild("ButtonFreeze").GetComponent<Button>();
+
+        _txt_money = c.FindChild("Money").GetComponent<Text>();
+        _txt_bestscore = c.FindChild("BestScore").GetComponent<Text>();
+        _txt_hp = c.FindChild("HP").GetComponent<Text>();
+        _txt_score = c.FindChild("Score").GetComponent<Text>();
+        _txt_wave = c.FindChild("Wave").GetComponent<Text>();
+
+        SpawnManager1 = GetComponent<Spawn>();
         _weapons_list = Resources.LoadAll<GameObject>("Prefabs/Weapons");
         _ennemy_list = Resources.LoadAll<GameObject>("Prefabs/Enemies");
 
@@ -390,7 +424,7 @@ public class GameManager : Singleton<GameManager>
 
             _temp_weapon.transform.FindChild("Camera").GetComponent<Camera>().enabled = auto;
 
-            transform.FindChild("Canvas").FindChild("ButtonCamera").FindChild("Text").GetComponent<Text>().text = text_button;
+            _bt_camera.transform.FindChild("Text").GetComponent<Text>().text = text_button;
 
             _temp_weapon.GetComponent<Weapon>().Auto = !auto;
 
@@ -408,14 +442,14 @@ public class GameManager : Singleton<GameManager>
         _main_camera = null;
         Camera.main.enabled = true;
 
-        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = false;
+        _bt_camera.interactable = false;
         if (PlayerPrefs.HasKey(BestScoreKey))
             BestScore = PlayerPrefs.GetInt(BestScoreKey);
 
         foreach (PullManager pull in _weapons)
             pull.RemoveAll();
 
-        transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = false;
+        _bt_retry.interactable = false;
 
         HP = 100;
         Score = 0;
@@ -432,41 +466,41 @@ public class GameManager : Singleton<GameManager>
     private void RefreshUI(bool end = false)
     {
         string best_score = BestScore >= 0 ? string.Format("Meilleur score : {0}", BestScore) : "";
-        transform.FindChild("Canvas").FindChild("Money").GetComponent<Text>().text = string.Format("Argent : {0}", Money);
-        transform.FindChild("Canvas").FindChild("BestScore").GetComponent<Text>().text = best_score;
-        transform.FindChild("Canvas").FindChild("HP").GetComponent<Text>().text = string.Format("HP : {0}", HP);
-        transform.FindChild("Canvas").FindChild("Score").GetComponent<Text>().text = string.Format("Score : {0}", Score);
-        transform.FindChild("Canvas").FindChild("Wave").GetComponent<Text>().text = string.Format("Vague : {0}", _wave);
+        _txt_money.text = string.Format("Argent : {0}", Money);
+        _txt_bestscore.text = best_score;
+        _txt_hp.text = string.Format("HP : {0}", HP);
+        _txt_score.text = string.Format("Score : {0}", Score);
+        _txt_wave.text = string.Format("Vague : {0}", _wave);
 
         bool power_selected = _num_power >= 0;
         bool show_weapons = !end && !power_selected && !_weapon_selected;
 
-        transform.FindChild("Canvas").FindChild("ButtonGatling").GetComponent<Button>().interactable = show_weapons
+        _bt_gatling.interactable = show_weapons
             && Money >= _weapons_list[1].GetComponent<Weapon>().Price 
             && _weapons[1].GetAllActive().Count < _weapons[1].Size;
 
-        transform.FindChild("Canvas").FindChild("ButtonShotgun").GetComponent<Button>().interactable = show_weapons
+        _bt_shotgun.interactable = show_weapons
             && Money >= _weapons_list[5].GetComponent<Weapon>().Price 
             && _weapons[5].GetAllActive().Count < _weapons[5].Size;
 
-        transform.FindChild("Canvas").FindChild("ButtonFlamethrower").GetComponent<Button>().interactable = show_weapons
+        _bt_flamethrower.interactable = show_weapons
             && Money >= _weapons_list[0].GetComponent<Weapon>().Price 
             && _weapons[0].GetAllActive().Count < _weapons[0].Size;
 
-        transform.FindChild("Canvas").FindChild("ButtonLaserBlast").GetComponent<Button>().interactable = show_weapons
+        _bt_laserblast.interactable = show_weapons
             && Money >= _weapons_list[3].GetComponent<Weapon>().Price 
             && _weapons[3].GetAllActive().Count < _weapons[3].Size;
 
-        transform.FindChild("Canvas").FindChild("ButtonRocketLauncher").GetComponent<Button>().interactable = show_weapons
+        _bt_rocketlauncher.interactable = show_weapons
             && Money >= _weapons_list[4].GetComponent<Weapon>().Price 
             && _weapons[4].GetAllActive().Count < _weapons[4].Size;
 
-        transform.FindChild("Canvas").FindChild("ButtonCamera").GetComponent<Button>().interactable = _weapon_selected && !power_selected;
+        _bt_camera.interactable = _weapon_selected && !power_selected;
 
-        transform.FindChild("Canvas").FindChild("ButtonFireball").GetComponent<Button>().interactable = !_weapon_selected && !power_selected;
-        transform.FindChild("Canvas").FindChild("ButtonFreeze").GetComponent<Button>().interactable = !_weapon_selected && !power_selected;
+        _bt_fireball.interactable = !_weapon_selected && !power_selected;
+        _bt_freeze.interactable = !_weapon_selected && !power_selected;
 
-        transform.FindChild("Canvas").FindChild("ButtonRetry").GetComponent<Button>().interactable = end;
+        _bt_retry.interactable = end;
     }
 
     private RaycastHit GetMouseRayPos(bool ignoreTrigger = true, int layer1 = -1, int layer2 = -1, int layer3 = -1)

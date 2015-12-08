@@ -35,6 +35,8 @@ public class Enemy : MonoBehaviour
     private GameObject _explosion;
 
     protected GameManager Manager;
+    protected ParticleSystem _flash;
+    protected ParticleSystem _particles;
 
     public Enemy()
     {
@@ -54,6 +56,8 @@ public class Enemy : MonoBehaviour
             _explosion = (GameObject)Instantiate(Explosion, transform.position, transform.rotation);
 
         _rb = GetComponent<Rigidbody>();
+        _flash = transform.FindChild("Flash").GetComponent<ParticleSystem>();
+        _particles = transform.FindChild("Particle").GetComponent<ParticleSystem>();
     }
 
     protected virtual void OnEnable()
@@ -67,9 +71,9 @@ public class Enemy : MonoBehaviour
         Target = target;
  
         GetComponent<Rigidbody>().useGravity = false;
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().Stop();
-        transform.FindChild("Particle").gameObject.SetActive(true);
-        transform.FindChild("Particle").GetComponent<ParticleSystem>().Play();
+        _flash.Stop();
+        _particles.gameObject.SetActive(true);
+        _particles.Play();
 
         if (Origin != null)
             _rb.MovePosition(Origin.transform.position);
@@ -148,9 +152,9 @@ public class Enemy : MonoBehaviour
         GetComponent<Rigidbody>().useGravity = true;
         yield return new WaitForSeconds(TimeBeforeExplode);
 
-        transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop();
-        transform.FindChild("Particle").gameObject.SetActive(false);
-        transform.FindChild("Flash").GetComponent<ParticleSystem>().Play();
+        _particles.Stop();
+        _particles.gameObject.SetActive(false);
+        _flash.Play();
         yield return new WaitForSeconds(0.3f);
         Manager.RemoveEnemy(gameObject);
     }
@@ -199,8 +203,8 @@ public class Enemy : MonoBehaviour
     {
         if (_explosion != null)
         {
-            transform.FindChild("Particle").GetComponent<ParticleSystem>().Stop(true);
-            transform.FindChild("Particle").gameObject.SetActive(false);
+            _particles.Stop(true);
+            _particles.gameObject.SetActive(false);
             _explosion.transform.position = _rb.position;
             _explosion.transform.rotation = _rb.rotation;
             _explosion.GetComponent<ParticleSystem>().Play(true);
@@ -259,15 +263,4 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(time);
         _move = true;
     }
-
-    ////void OnParticleCollision(GameObject other)
-    ////{
-
-    ////}
-
-    //void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.red;
-    //    Gizmos.DrawLine(_last_pos, transform.position);
-    //}
 }

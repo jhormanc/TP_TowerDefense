@@ -7,9 +7,41 @@ public class RocketLauncher : Weapon
     public float MissileErrorMax;
     private int _selected_cannon = 1;
 
-	public RocketLauncher() : base()
+    // Transform
+    private Transform _cannon1;
+    private Transform _cannon2;
+    private Transform _cannon3;
+    private Transform _cannon4;
+    private Transform _cannon5;
+    private Transform _cannon6;
+
+    private ParticleSystem _particle1;
+    private ParticleSystem _particle2;
+    private ParticleSystem _particle3;
+    private ParticleSystem _particle4;
+    private ParticleSystem _particle5;
+    private ParticleSystem _particle6;
+
+    public RocketLauncher() : base()
     {
 
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        _cannon1 = _head.FindChild("Cannon_1");
+        _cannon2 = _head.FindChild("Cannon_2");
+        _cannon3 = _head.FindChild("Cannon_3");
+        _cannon4 = _head.FindChild("Cannon_4");
+        _cannon5 = _head.FindChild("Cannon_5");
+        _cannon6 = _head.FindChild("Cannon_6");
+        _particle1 = _cannon1.FindChild("Particle").GetComponent<ParticleSystem>();
+        _particle2 = _cannon2.FindChild("Particle").GetComponent<ParticleSystem>();
+        _particle3 = _cannon3.FindChild("Particle").GetComponent<ParticleSystem>();
+        _particle4 = _cannon4.FindChild("Particle").GetComponent<ParticleSystem>();
+        _particle5 = _cannon5.FindChild("Particle").GetComponent<ParticleSystem>();
+        _particle6 = _cannon6.FindChild("Particle").GetComponent<ParticleSystem>();
     }
 
     protected void OnEnable()
@@ -19,23 +51,20 @@ public class RocketLauncher : Weapon
 
     protected override void Move()
     {
-        Transform tourelle = transform.FindChild("Base").FindChild("Tourelle");
-
-        Transform head = tourelle.FindChild("Head");
         Transform target = GetTarget();
         Vector3 target_pos = Vector3.zero;
 
         if (target != null)
         {
             target_pos = target.position;
-            float dist = Vector3.Distance(head.position, target_pos);
+            float dist = Vector3.Distance(_head.position, target_pos);
             float h = 0.1f * dist * dist - 5f * dist + 80f;
 
             // Angle de vision max vers le haut
             if (h > 40f)
                 h = 40f;
 
-            target_pos += (target.position - head.position).magnitude
+            target_pos += (target.position - _head.position).magnitude
                              * target.forward
                              * target.GetComponent<Enemy>().Speed
                              / (BulletSpeed);
@@ -45,7 +74,7 @@ public class RocketLauncher : Weapon
             Debug.DrawLine(target_pos, target_pos + target.forward);
         }
 
-        Move(tourelle, head, null, target_pos);
+        Move(_tourelle, _head, null, target_pos);
     }
 
 
@@ -66,19 +95,50 @@ public class RocketLauncher : Weapon
 
     protected override void EmitParticle(bool emit)
     {
-        Transform p = GetCannon().FindChild("Particle");
+        ParticleSystem p = GetParticles();
 
-        p.GetComponent<ParticleSystem>().enableEmission = emit;
+        if(p != null)
+        {
+            p.enableEmission = emit;
 
-        if(emit)
-            p.GetComponent<ParticleSystem>().Emit(100);
+            if (emit)
+                p.Emit(100);
+        }
     }
 
     private Transform GetCannon()
     {
-        Transform head = transform.FindChild("Base").FindChild("Tourelle").FindChild("Head");
-        Transform cannon = head.FindChild(string.Format("Cannon_{0}", _selected_cannon));
+        if (_selected_cannon == 1)
+            return _cannon1;
+        else if (_selected_cannon == 2)
+            return _cannon2;
+        else if (_selected_cannon == 3)
+            return _cannon3;
+        else if (_selected_cannon == 4)
+            return _cannon4;
+        else if (_selected_cannon == 5)
+            return _cannon5;
+        else if (_selected_cannon == 6)
+            return _cannon6;
+        else
+            return _cannon1;
+    }
 
-        return cannon;
+    private ParticleSystem GetParticles()
+    {
+        if (_selected_cannon == 1)
+            return _particle1;
+        else if (_selected_cannon == 2)
+            return _particle2;
+        else if (_selected_cannon == 3)
+            return _particle3;
+        else if (_selected_cannon == 4)
+            return _particle4;
+        else if (_selected_cannon == 5)
+            return _particle5;
+        else if (_selected_cannon == 6)
+            return _particle6;
+        else
+            return _particle1;
     }
 }
