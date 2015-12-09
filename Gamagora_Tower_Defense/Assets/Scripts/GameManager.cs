@@ -67,7 +67,6 @@ public class GameManager : Singleton<GameManager>
     private Text _txt_wave;
     private Text _txt_bestscore;
 
-
     // Use this for initialization
     void Awake()
     {
@@ -161,7 +160,6 @@ public class GameManager : Singleton<GameManager>
 
                 RefreshUI(true);
             }
-
         }
 
         if (_main_camera == null) // Vue globale

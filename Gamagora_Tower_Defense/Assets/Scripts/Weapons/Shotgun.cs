@@ -41,7 +41,7 @@ public class Shotgun : Weapon
         Transform canon = GetCannon();
         Transform shoot = canon.FindChild("Shoot");
         GameObject bullet = _bullets.GetNextObj();
-        bullet.SetActive(true);
+        //bullet.SetActive(true);
         EmitParticle(true);
         canon.Translate(new Vector3(0f, 0f, -0.2f), Space.Self);
         StartCoroutine(Fire(shoot, bullet, false));      
@@ -117,7 +117,6 @@ public class Shotgun : Weapon
     {
         if (_key_shoot_sound >= 0 && stop)
         {
-            _soundManager.stop(_key_shoot_sound);
             _key_shoot_sound = -1;
         }
         else
@@ -125,16 +124,10 @@ public class Shotgun : Weapon
             Hashtable param = new Hashtable();
             param.Add("position", _tourelle.position);
             param.Add("loop", false);
-            param.Add("spatialBlend", 0.5f);
-            _key_shoot_sound = _soundManager.PlayAudio(Audio_Type.RocketLauncherShoot, param);
-            StartCoroutine(StopSound(0.5f, _key_shoot_sound));
+            param.Add("spatialBlend", 0.75f);
+            param.Add("volume", 0.5f);
+            _key_shoot_sound = _soundManager.PlayAudio(Audio_Type.ShotgunShoot, param);
+            _soundManager.Fade(_key_shoot_sound, 0.5f, 0f);
         }
-    }
-
-    private IEnumerator StopSound(float time, int key)
-    {
-        yield return new WaitForSeconds(time);
-
-        _soundManager.stop(key);
     }
 }

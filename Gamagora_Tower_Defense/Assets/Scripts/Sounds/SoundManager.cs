@@ -15,7 +15,7 @@ public class SoundManager : Singleton<SoundManager>
     void Awake()
     {
         _audioPool = ScriptableObject.CreateInstance<PullManager>();
-        _audioPool.Init(AudioSource, 32, 256);
+        _audioPool.Init(AudioSource, 30, 200);
         _audioDatas = new Dictionary<Audio_Type, AudioData>();
         _audioPlaying = new Dictionary<int, AudioSrc>();
 
@@ -129,6 +129,19 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
+    private void UpdateSources()
+    {
+        List<int> del_keys = new List<int>();
+
+        foreach (KeyValuePair<int, AudioSrc> entry in _audioPlaying)
+        {
+            if (!entry.Value.Source.isPlaying)
+                del_keys.Add(entry.Key);
+        }
+
+        foreach (int key in del_keys)
+            Stop(key);
+    }
 
     /*
      * Hashtable parameters :
@@ -214,7 +227,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
 
-    public void stop(int key, bool mute = true)
+    public void Stop(int key, bool mute = true)
     {
         AudioSrc source;
         if (_audioPlaying.TryGetValue(key, out source))
@@ -225,7 +238,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
 
-    public void stopAll(bool mute = true)
+    public void StopAll(bool mute = true)
     {
         foreach (KeyValuePair<int, AudioSrc> entry in _audioPlaying)
         {
@@ -235,7 +248,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
 
-    public void mute(int key, bool mute = true)
+    public void Mute(int key, bool mute = true)
     {
         AudioSrc source;
         if (_audioPlaying.TryGetValue(key, out source))
@@ -245,7 +258,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
 
-    public void muteAll(bool mute = true)
+    public void MuteAll(bool mute = true)
     {
         foreach (KeyValuePair<int, AudioSrc> entry in _audioPlaying)
         {
@@ -259,6 +272,9 @@ public class SoundManager : Singleton<SoundManager>
 
         if (_audioDatas.TryGetValue(type, out data))
         {
+            if(_audioPlaying.Count >= (_audioPool.Size / 2))
+                UpdateSources();
+
             GameObject obj = _audioPool.GetNextObj(true);
             obj.SetActive(true);
             AudioSrc psource = obj.GetComponent<AudioSrc>();
@@ -283,5 +299,18 @@ public class SoundManager : Singleton<SoundManager>
         key = -1;
 
         return false;
+    }
+
+    public void StartStopSound(float time, int key)
+    {
+        if (_audioPlaying.ContainsKey(key))
+            StartCoroutine(StopSound(time, key));
+    }
+
+    private IEnumerator StopSound(float time, int key)
+    {
+        yield return new WaitForSeconds(time);
+
+        Stop(key);
     }
 }

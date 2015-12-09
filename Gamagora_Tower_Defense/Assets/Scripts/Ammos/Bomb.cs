@@ -45,8 +45,7 @@ public class Bomb : Ammo
             Hashtable param = new Hashtable();
             param.Add("position", transform.position);
             param.Add("volume", 1f);
-            int key = _soundManager.PlayAudio(Audio_Type.BombOnTerrain, param);
-            StartCoroutine(StopSound(0.2f, key));
+            _soundManager.PlayAudio(Audio_Type.BombOnTerrain, param);
             _explode_delay = true;
         }
     }
@@ -59,13 +58,5 @@ public class Bomb : Ammo
         param.Add("volume", 1f);
         int key = _soundManager.PlayAudio(Audio_Type.ExplosionBomb, param);
         _soundManager.Fade(key, 1f, 0f);
-        StartCoroutine(StopSound(1f, key));
-    }
-
-    private IEnumerator StopSound(float time, int key)
-    {
-        yield return new WaitForSeconds(time);
-
-        _soundManager.stop(key);
     }
 }

@@ -123,6 +123,6 @@ public class Rocket : Ammo
     {
         yield return new WaitForSeconds(time);
 
-        _soundManager.stop(key);
+        _soundManager.Stop(key);
     }
 }

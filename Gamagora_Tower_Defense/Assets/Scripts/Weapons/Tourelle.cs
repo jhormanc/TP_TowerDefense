@@ -58,7 +58,7 @@ public class Tourelle : Weapon
     {
         if (_key_shoot_sound >= 0 && stop)
         {
-            _soundManager.stop(_key_shoot_sound);
+            _soundManager.Stop(_key_shoot_sound);
             _key_shoot_sound = -1;
         }
         else if(_key_shoot_sound == -1 && !stop)
@@ -67,7 +67,7 @@ public class Tourelle : Weapon
             param.Add("position", _tourelle.position);
             //param.Add("pitch", FireRate / 1.6f);
             param.Add("pitch", FireRate / 7f);
-            //param.Add("delayedtime", 1f / FireRate);
+            param.Add("volume", 0.5f);
             param.Add("loop", true);
             param.Add("spatialBlend", 0.5f);
             param.Add("reverbZoneMix", Random.Range(0f, 200f));

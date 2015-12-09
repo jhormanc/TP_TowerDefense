@@ -152,7 +152,7 @@ public class RocketLauncher : Weapon
     {
         if (stop)
         {
-            _soundManager.stop(_key_shoot_sound);
+            _soundManager.Stop(_key_shoot_sound);
             _key_shoot_sound = -1;
         }
         else
@@ -171,6 +171,6 @@ public class RocketLauncher : Weapon
     {
         yield return new WaitForSeconds(time);
 
-        _soundManager.stop(key);
+        _soundManager.Stop(key);
     }
 }

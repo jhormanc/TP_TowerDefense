@@ -157,8 +157,9 @@ public class Enemy : MonoBehaviour
         Hashtable param = new Hashtable();
         param.Add("position", transform.position);
         //param.Add("pitch", 2f);
-        param.Add("volume", 0.5f);
-        _soundManager.PlayAudio(Audio_Type.EnemyExplosion, param);
+        param.Add("volume", 0.1f);
+        int key = _soundManager.PlayAudio(Audio_Type.EnemyExplosion, param);
+        _soundManager.Fade(key, 1f, 0f);
         _particles.Stop();
         _particles.gameObject.SetActive(false);
         _flash.Play();
@@ -217,6 +218,14 @@ public class Enemy : MonoBehaviour
             _explosion.transform.rotation = _rb.rotation;
             _explosion.GetComponent<ParticleSystem>().Play(true);
         }
+
+        Hashtable param = new Hashtable();
+        param.Add("position", transform.position);
+        param.Add("spatialBlend", 0.5f);
+        param.Add("volume", 1f);
+        int key = _soundManager.PlayAudio(Audio_Type.ExplosionBomb, param);
+        _soundManager.Fade(key, 1f, 0f);
+
         Manager.ReceiveDamage(Degats, gameObject);
         _rb.velocity = Vector3.zero;
         _move = false;

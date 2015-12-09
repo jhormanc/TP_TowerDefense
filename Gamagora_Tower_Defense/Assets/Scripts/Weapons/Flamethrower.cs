@@ -82,7 +82,7 @@ public class Flamethrower : Weapon
 
     private void StopFire()
     {
-        _soundManager.stop(_key_shoot_sound);
+        _soundManager.Stop(_key_shoot_sound);
         _key_shoot_sound = -1;
     }
 }
