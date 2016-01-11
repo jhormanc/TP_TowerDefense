@@ -45,11 +45,16 @@ public class Generator : Weapon
     {
         Transform p = transform.FindChild("Base").FindChild("Tourelle").FindChild("Cannon").FindChild("Particle");
 
-        p.GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Lightning").GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Spakles").GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Ring").GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Ray").GetComponent<ParticleSystem>().enableEmission = emit;
+        ParticleSystem.EmissionModule em = p.GetComponent<ParticleSystem>().emission;
+        em.enabled = emit;
+        em = p.FindChild("Lightning").GetComponent<ParticleSystem>().emission;
+        em.enabled = emit;
+        em = p.FindChild("Spakles").GetComponent<ParticleSystem>().emission;
+        em.enabled = emit;
+        em = p.FindChild("Ring").GetComponent<ParticleSystem>().emission;
+        em.enabled = emit;
+        em = p.FindChild("Ray").GetComponent<ParticleSystem>().emission;
+        em.enabled = emit;
 
         if (emit)
             p.GetComponent<ParticleSystem>().Emit(1);

@@ -80,9 +80,13 @@ public abstract class Weapon : MonoBehaviour
     protected Transform _shoot;
     protected Transform _camera;
     protected ParticleSystem _particle;
+    protected ParticleSystem _smoke;
+    protected ParticleSystem _sparkles;
 
     // Sounds
     protected int _key_shoot_sound;
+
+    EnemyWatcher watcher;
 
     // Use this for initialization
     protected virtual void Awake()
@@ -110,7 +114,24 @@ public abstract class Weapon : MonoBehaviour
             p = _cannon.FindChild("Particle");
 
         if(p != null)
+        {
             _particle = p.GetComponent<ParticleSystem>();
+
+            Transform tmp = p.FindChild("Smoke");
+            if(tmp != null)
+                _smoke = tmp.GetComponent<ParticleSystem>();
+
+            tmp = p.FindChild("Sparks");
+            if(tmp != null)
+                 _sparkles = p.FindChild("Sparks").GetComponent<ParticleSystem>();
+        }
+
+        watcher = _base.GetComponent<EnemyWatcher>();
+
+        if(watcher != null)
+        {
+            watcher.Init(this, Range);
+        }
 
         _direction = new Vector3();
         _angleRotation = 0f;
@@ -119,7 +140,6 @@ public abstract class Weapon : MonoBehaviour
         Auto = true;
         Level = 1;
         _targets = new ArrayList();
-        GetComponent<SphereCollider>().radius = Range;
         FireRate = Mathf.Abs(FireRate);
         if (FireRate == 0f)
             FireRate = 1f;
@@ -180,20 +200,18 @@ public abstract class Weapon : MonoBehaviour
             
     }
 
-    void OnTriggerEnter(Collider other)
+    public void AddEnemy(GameObject obj)
     {
-        if (other.tag == "Enemy")
-        {
-            _targets.Add(other.transform.gameObject);
-            SortTargets();
-        }
+        _targets.Add(obj);
+        SortTargets();
     }
 
-    void OnTriggerExit(Collider other)
+    public void RemoveEnemy(GameObject obj)
     {
-        if (other.tag == "Enemy")
-            _targets.Remove(other.transform.gameObject);
+        _targets.Remove(obj);
     }
+
+   
 
     bool CanFire()
     {
@@ -217,6 +235,7 @@ public abstract class Weapon : MonoBehaviour
         if (_bullets != null)
         {
             bullet = _bullets.GetNextObj();
+            bullet.transform.FindChild("Base").gameObject.SetActive(true);
             bullet.SetActive(true);
         }
 
@@ -374,9 +393,26 @@ public abstract class Weapon : MonoBehaviour
 
     protected virtual void EmitParticle(bool emit)
     {
-        _particle.enableEmission = emit;
-        _particle.transform.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
-        _particle.transform.FindChild("Sparks").GetComponent<ParticleSystem>().enableEmission = emit;
+        ParticleSystem.EmissionModule em;
+
+        if (_particle != null)
+        {
+            em = _particle.emission;
+            em.enabled = emit;
+        }
+                
+        if (_sparkles != null)
+        {
+            em = _smoke.emission;
+            em.enabled = emit;
+        }
+            
+        if (_sparkles != null)
+        {
+            em = _sparkles.emission;
+            em.enabled = emit;
+        }
+        
     }
 
     public Transform GetTarget()

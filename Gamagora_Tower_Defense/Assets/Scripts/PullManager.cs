@@ -14,7 +14,7 @@ public class PullManager : ScriptableObject
 
     }
 
-    public void Init(GameObject src, int size, int max_size)
+    public void Init(GameObject src, int size, int max_size, Vector3 pos = default(Vector3), Quaternion rot = default(Quaternion))
     {
         Size = size;
         _template = src;
@@ -26,7 +26,7 @@ public class PullManager : ScriptableObject
 
             for (int i = 0; i < Size; i++)
             {
-                _objects.Add(Instantiate(_template));
+                _objects.Add((GameObject)Instantiate(_template, pos, rot));
                 _objects[i].SetActive(false);
             }
         }
@@ -74,7 +74,7 @@ public class PullManager : ScriptableObject
         }
             
         
-        UnityEditor.PrefabUtility.ResetToPrefabState(next);
+        //PrefabUtility.ResetToPrefabState(next);
         return next;
     }
 }

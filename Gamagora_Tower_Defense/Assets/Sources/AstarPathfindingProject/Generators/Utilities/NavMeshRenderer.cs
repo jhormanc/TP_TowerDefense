@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEditor.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,10 +20,10 @@ public class NavMeshRenderer : MonoBehaviour {
 	void Update () {
 		#if UNITY_EDITOR
 		if (lastLevel == "") {
-			lastLevel = EditorApplication.currentScene;
+			lastLevel = EditorSceneManager.GetActiveScene().name;
 		}
 		
-		if (lastLevel != EditorApplication.currentScene) {
+		if (lastLevel != EditorSceneManager.GetActiveScene().name) {
 			DestroyImmediate (gameObject);
 		}
 		#endif

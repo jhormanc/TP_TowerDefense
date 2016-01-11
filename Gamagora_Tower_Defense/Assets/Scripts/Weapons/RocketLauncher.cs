@@ -100,7 +100,8 @@ public class RocketLauncher : Weapon
 
         if(p != null)
         {
-            p.enableEmission = emit;
+            ParticleSystem.EmissionModule em = p.emission;
+            em.enabled = emit;
 
             if (emit)
                 p.Emit(100);

@@ -54,7 +54,8 @@ public class LaserBlast : Weapon
 
     protected override void EmitParticle(bool emit)
     {
-        _particle.enableEmission = emit;
+        ParticleSystem.EmissionModule em = _particle.emission;
+        em.enabled = emit;
 
         if (!emit)
             _particle.Stop(true);

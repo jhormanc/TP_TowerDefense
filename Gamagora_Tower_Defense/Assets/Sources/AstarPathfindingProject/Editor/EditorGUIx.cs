@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
-using Pathfinding;
 
 namespace Pathfinding {
 	/** Simple GUI utility functions */
@@ -326,8 +325,10 @@ namespace Pathfinding {
 
 			GUILayout.BeginHorizontal ();
 
-			EditorGUIUtility.LookLikeControls();
-			EditorGUILayout.PrefixLabel (label,EditorStyles.layerMaskField);
+			//EditorGUIUtility.LookLikeControls();
+            EditorGUIUtility.labelWidth = label.text.Length;
+
+            EditorGUILayout.PrefixLabel (label,EditorStyles.layerMaskField);
 
 			string text;
 			if (value == 0) text = "Nothing";

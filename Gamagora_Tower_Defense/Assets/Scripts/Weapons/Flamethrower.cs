@@ -4,6 +4,7 @@ using System;
 
 public class Flamethrower : Weapon
 {
+    private ParticleDamage damage;
 
     public Flamethrower() : base()
     {
@@ -13,7 +14,8 @@ public class Flamethrower : Weapon
     protected override void Awake()
     {
         base.Awake();
-        transform.FindChild("Base").FindChild("Tourelle").FindChild("Head").FindChild("Cannon").FindChild("Particle").GetComponent<ParticleDamage>().Source = gameObject;
+        damage = _cannon.FindChild("Particle").GetComponent<ParticleDamage>();
+        damage.Source = gameObject;
     }
 
     protected override void Move()
@@ -23,7 +25,7 @@ public class Flamethrower : Weapon
 
         if (target != null)
         {
-            float fire_speed = _cannon.FindChild("Particle").GetComponent<ParticleDamage>().GetSpeed();
+            float fire_speed = damage.GetSpeed();
             target_pos = target.position;
 
             target_pos += (target.position - _head.position).magnitude
@@ -44,16 +46,12 @@ public class Flamethrower : Weapon
 
     protected override void EmitParticle(bool emit)
     {
-        Transform p = _cannon.FindChild("Particle");
-
-        p.GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Smoke").GetComponent<ParticleSystem>().enableEmission = emit;
-        p.FindChild("Sparkles").GetComponent<ParticleSystem>().enableEmission = emit;
+        base.EmitParticle(emit);
 
         if (emit)
-            p.GetComponent<ParticleSystem>().Play();
+            _particle.Play();
         else
-            p.GetComponent<ParticleSystem>().Stop();
+            _particle.Stop();
 
     }
 
