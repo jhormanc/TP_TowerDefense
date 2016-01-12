@@ -23,7 +23,7 @@ public enum Audio_Type
     Flame,
     ExplosionBomb,
     ExplosionMissile,
-    EnemyExplosion,
+    EnemyExplosion
 }
 
 public static class General

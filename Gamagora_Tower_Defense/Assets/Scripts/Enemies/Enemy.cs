@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Pathfinding;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
@@ -40,6 +41,11 @@ public class Enemy : MonoBehaviour
 
     private SoundManager _soundManager;
 
+    // UI
+    private Transform _canvas;
+    private Text _health_text;
+    private Vector3 canvas_pos;
+
     public Enemy()
     {
 
@@ -61,6 +67,9 @@ public class Enemy : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         _flash = transform.FindChild("Flash").GetComponent<ParticleSystem>();
         _particles = transform.FindChild("Particle").GetComponent<ParticleSystem>();
+        _canvas = transform.FindChild("Canvas");
+        _health_text = _canvas.FindChild("Life").GetComponent<Text>();
+        canvas_pos = _canvas.localPosition;
     }
 
     protected virtual void OnEnable()
@@ -85,6 +94,8 @@ public class Enemy : MonoBehaviour
         _targetable = false;
         _move = true;
         Dead = false;
+        _health_text.text = _health.ToString();
+        _health_text.color = new Color(0f, 180f, 0f);
 
         AstarPath.OnGraphsUpdated += RecalculatePath;
         _seeker.pathCallback += OnPathComplete;
@@ -117,12 +128,15 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (_health < 0f)
+        if (IsDead())
         {
             Die();
         }
         else
         {
+            _canvas.localPosition = canvas_pos;
+            if (Camera.main != null)
+                _canvas.LookAt(Camera.main.transform);
             if (_move)
                 Move();
         }
@@ -131,11 +145,23 @@ public class Enemy : MonoBehaviour
     public virtual void ReceiveDamage(float damage)
     {
         _health -= damage;
+
+        if (_health < 0f)
+            _health = 0f;
+
+        _health_text.text = _health.ToString();
+
+        if (_health > HP * 0.66f)
+            _health_text.color = new Color(0f, 180f, 0f);
+        else if(_health > HP * 0.33f)
+            _health_text.color = new Color(180f, 180f, 0f);
+        else
+            _health_text.color = new Color(180f, 0f, 0f);
     }
 
     public bool IsDead()
     {
-        return _health < 0f;
+        return _health <= 0f;
     }
 
     protected void Die()
@@ -143,6 +169,7 @@ public class Enemy : MonoBehaviour
         if (!Dead)
         {
             Manager.SetDead(gameObject);
+            _health_text.text = string.Empty;
             Dead = true;
             _move = false;
             _rb.velocity = Vector3.zero;
@@ -197,7 +224,7 @@ public class Enemy : MonoBehaviour
         float f = Time.realtimeSinceStartup * 4f * Speed;
         Vector3 delta_h = 0.2f * Vector3.up * Mathf.Cos(f);
 
-        target = target + Vector3.up * 1.5f + delta_h;
+        target = target + Vector3.up * 1.5f;// + delta_h;
         // Direction to the next waypoint
         Vector3 dir = (target - _rb.position).normalized;
         float speed = Speed * Time.deltaTime;
@@ -228,6 +255,7 @@ public class Enemy : MonoBehaviour
 
         Manager.ReceiveDamage(Degats, gameObject);
         _rb.velocity = Vector3.zero;
+        _health_text.text = string.Empty;
         _move = false;
     }
 

@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Pathfinding;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -35,7 +36,6 @@ public class GameManager : Singleton<GameManager>
 
     // Weapons
     public GameObject NewWeaponEffect;
-    public GameObject AStar;
     private bool _placing_weapon;
     private bool _new_weapon;
     private static GameObject[] _weapons_list;
@@ -174,7 +174,7 @@ public class GameManager : Singleton<GameManager>
                     _temp_weapon.transform.position = new Vector3(pos.point.x, 0f, pos.point.z);
 
                 GridGraph grid = (GridGraph)AstarPath.active.graphs[0];
-                List<GraphNode> nodes = grid.GetNodesInArea(_temp_weapon.GetComponent<Collider>().bounds);
+                List<GraphNode> nodes = grid.GetNodesInArea(_temp_weapon.GetComponent<BoxCollider>().bounds);
 
                 bool walkable = true;
 
@@ -193,7 +193,7 @@ public class GameManager : Singleton<GameManager>
                 {
                     if (walkable)
                     {
-                        var guo = new GraphUpdateObject(_temp_weapon.GetComponent<Collider>().bounds);
+                        var guo = new GraphUpdateObject(_temp_weapon.GetComponent<BoxCollider>().bounds);
                         var spawnPointNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().StartPoint.transform.position).node;
                         var goalNode = AstarPath.active.GetNearest(SpawnManager1.GetComponent<Spawn>().EndPoint.transform.position).node;
 
@@ -209,7 +209,7 @@ public class GameManager : Singleton<GameManager>
                             {
                                 Audio_Type type = _temp_weapon.GetComponent<Weapon>().GetNewWeaponAudioType();
 
-                                if(type != Audio_Type.NULL)
+                                if (type != Audio_Type.NULL)
                                 {
                                     Hashtable param = new Hashtable();
                                     param.Add("position", Camera.main.transform.position + Camera.main.transform.up * 2f);
@@ -221,10 +221,13 @@ public class GameManager : Singleton<GameManager>
 
                                 StartCoroutine(StartWeaponColor(_temp_weapon));
                             }
+                            else
+                                SetColor(_temp_weapon);
 
                             _temp_weapon.GetComponent<Weapon>().ShowNodes(nodes, false);
                             ShowGrid(false);
                             _placing_weapon = false;
+                            _weapon_selected = false;
                             _new_weapon = false;
                             _temp_weapon = null;
                             RefreshUI();
@@ -318,11 +321,13 @@ public class GameManager : Singleton<GameManager>
                         mat.SetColor("_EmissionColor", color * 0.8f);
                         _weapon_selected = true;
                         RefreshUI();
+                        _temp_weapon.GetComponent<Weapon>().ShowCanvas(true);
                         ShowGrid(true);
                     }
                 }
                 else if (_weapon_selected && !EventSystem.current.IsPointerOverGameObject())
                 {
+                    _temp_weapon.GetComponent<Weapon>().ShowCanvas(false);
                     SetColor(_temp_weapon);
                     _temp_weapon = null;
                     _weapon_selected = false;
@@ -349,11 +354,12 @@ public class GameManager : Singleton<GameManager>
     public void ShowGrid(bool show)
     {
         GridGraph grid = (GridGraph)AstarPath.active.graphs[0];
-        foreach(PullManager pull in _weapons)
+
+        foreach (PullManager pull in _weapons)
         {
             foreach (GameObject weapon in pull.GetAllActive())
             {
-                List<GraphNode> nodes = grid.GetNodesInArea(weapon.GetComponent<Collider>().bounds);
+                List<GraphNode> nodes = grid.GetNodesInArea(weapon.GetComponent<BoxCollider>().bounds);
                 weapon.GetComponent<Weapon>().ShowNodes(nodes, show);
             }
         }
@@ -604,6 +610,7 @@ public class GameManager : Singleton<GameManager>
             _temp_weapon = _weapons[nb].GetNextObj();
             _temp_weapon.transform.position = pos.point;
             _temp_weapon.SetActive(true);
+            _temp_weapon.GetComponent<Weapon>().ShowCanvas(false);
 
             Material temperature = _temp_weapon.transform.FindChild("Base").FindChild("Temperature").GetComponent<Renderer>().material;
             temperature.EnableKeyword("_EMISSION");
@@ -634,5 +641,29 @@ public class GameManager : Singleton<GameManager>
 
         _num_power = nb;
         RefreshUI();
+    }
+
+    public void LoadScene(string name)
+    {
+        SceneManager.LoadSceneAsync(name);
+    }
+
+    public void PauseGame(bool pause)
+    {
+        if (pause)
+            Time.timeScale = 0;
+        else
+            Time.timeScale = 1;
+    }
+
+    public void MoveWeapon()
+    {
+        if (_temp_weapon != null && _placing_weapon == false)
+        {
+            _temp_weapon.GetComponent<Weapon>().ShowCanvas(false);
+            SetTransparent(_temp_weapon, true);
+            ShowGrid(true);
+            _placing_weapon = true;
+        }
     }
 }

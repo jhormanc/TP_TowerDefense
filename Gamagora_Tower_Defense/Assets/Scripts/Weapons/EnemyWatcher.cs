@@ -22,7 +22,7 @@ public class EnemyWatcher : MonoBehaviour
     {
         coll = GetComponent<SphereCollider>();
         source = src;
-        coll.radius = range;
+        coll.radius = range * 0.5f;
     }
 
     void OnTriggerEnter(Collider other)

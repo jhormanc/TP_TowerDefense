@@ -55,12 +55,6 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -91,6 +85,7 @@
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\General.cs" />
     <Compile Include="Assets\Scripts\InputManager.cs" />
+    <Compile Include="Assets\Scripts\MoveCredits.cs" />
     <Compile Include="Assets\Scripts\Powers\Fireball.cs" />
     <Compile Include="Assets\Scripts\Powers\Freeze.cs" />
     <Compile Include="Assets\Scripts\Powers\PowerDamage.cs" />
@@ -100,6 +95,7 @@
     <Compile Include="Assets\Scripts\Sounds\AudioSrc.cs" />
     <Compile Include="Assets\Scripts\Sounds\SoundManager.cs" />
     <Compile Include="Assets\Scripts\Spawn.cs" />
+    <Compile Include="Assets\Scripts\UIManager.cs" />
     <Compile Include="Assets\Scripts\Weapons\EnemyWatcher.cs" />
     <Compile Include="Assets\Scripts\Weapons\Flamethrower.cs" />
     <Compile Include="Assets\Scripts\Weapons\Generator.cs" />

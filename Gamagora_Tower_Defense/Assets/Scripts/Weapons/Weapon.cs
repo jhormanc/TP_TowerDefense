@@ -86,6 +86,9 @@ public abstract class Weapon : MonoBehaviour
     // Sounds
     protected int _key_shoot_sound;
 
+    // UI
+    private GameObject _canvas;
+
     EnemyWatcher watcher;
 
     // Use this for initialization
@@ -132,6 +135,10 @@ public abstract class Weapon : MonoBehaviour
         {
             watcher.Init(this, Range);
         }
+
+        Transform c = transform.FindChild("Canvas");
+        if(c != null)
+            _canvas = c.gameObject;
 
         _direction = new Vector3();
         _angleRotation = 0f;
@@ -506,6 +513,19 @@ public abstract class Weapon : MonoBehaviour
 
             }
         }
+    }
+
+    public void ShowCanvas(bool show)
+    {
+        if(_canvas != null)
+        {
+            _canvas.SetActive(show);
+        }
+    }
+
+    public void MoveWeaponPos()
+    {
+        GameManager.Instance.MoveWeapon();
     }
 
     void OnDrawGizmos()
