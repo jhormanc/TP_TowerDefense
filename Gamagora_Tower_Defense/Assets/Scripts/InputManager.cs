@@ -3,6 +3,9 @@ using System.Collections;
 
 public class InputManager : Singleton<InputManager>
 {
+    public bool Cancel { get; private set; }
+    public bool Submit { get; private set; }
+
     private UIManager ui_manager;
     private GameManager game_manager;
     private bool isAxisInUse;
@@ -16,6 +19,8 @@ public class InputManager : Singleton<InputManager>
         ui_manager = UIManager.Instance;
         game_manager = GameManager.Instance;
         isAxisInUse = false;
+        Cancel = false;
+        Submit = false;
     }
 	
 	// Update is called once per frame
@@ -27,7 +32,6 @@ public class InputManager : Singleton<InputManager>
         {
             if (isAxisInUse == false)
             {
-                ui_manager.SelectButton(vertical);
                 isAxisInUse = true;
             }
         }
@@ -36,5 +40,10 @@ public class InputManager : Singleton<InputManager>
         {
             isAxisInUse = false;
         }
+  
+        //Cancel = Input.GetKeyDown("Cancel");
+        //Submit = Input.GetKeyDown("Submit");
+
+
     }
 }

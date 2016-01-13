@@ -149,14 +149,19 @@ public class Enemy : MonoBehaviour
         if (_health < 0f)
             _health = 0f;
 
-        _health_text.text = _health.ToString();
+        if (_health > 0f)
+        {
+            _health_text.text = _health.ToString();
 
-        if (_health > HP * 0.66f)
-            _health_text.color = new Color(0f, 180f, 0f);
-        else if(_health > HP * 0.33f)
-            _health_text.color = new Color(180f, 180f, 0f);
+            if (_health > HP * 0.66f)
+                _health_text.color = new Color(0f, 180f, 0f);
+            else if (_health > HP * 0.33f)
+                _health_text.color = new Color(180f, 180f, 0f);
+            else
+                _health_text.color = new Color(180f, 0f, 0f);
+        }
         else
-            _health_text.color = new Color(180f, 0f, 0f);
+            _health_text.text = string.Empty;
     }
 
     public bool IsDead()

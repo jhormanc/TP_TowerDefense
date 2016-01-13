@@ -66,6 +66,9 @@ public class GameManager : Singleton<GameManager>
     private Text _txt_hp;
     private Text _txt_wave;
     private Text _txt_bestscore;
+    private Transform _txt_weaponInfos;
+
+    private bool _showInfos;
 
     // Use this for initialization
     void Awake()
@@ -89,6 +92,7 @@ public class GameManager : Singleton<GameManager>
         _txt_hp = c.FindChild("HP").GetComponent<Text>();
         _txt_score = c.FindChild("Score").GetComponent<Text>();
         _txt_wave = c.FindChild("Wave").GetComponent<Text>();
+        _txt_weaponInfos = c.FindChild("WeaponInfos");
 
         SpawnManager1 = GetComponent<Spawn>();
         _weapons_list = Resources.LoadAll<GameObject>("Prefabs/Weapons");
@@ -478,11 +482,14 @@ public class GameManager : Singleton<GameManager>
         HP = 100;
         Score = 0;
         _wave = 0;
+        _showInfos = false;
 
         AstarPath.active.Scan();
 
         SpawnManager1.NewWave(_wave);
         _waveIsStarted = true;
+
+        _txt_weaponInfos.gameObject.SetActive(false);
 
         RefreshUI();
     }
@@ -665,5 +672,74 @@ public class GameManager : Singleton<GameManager>
             ShowGrid(true);
             _placing_weapon = true;
         }
+    }
+
+    public void ShowWeaponInfos(int weapon_nb)
+    {
+        if(weapon_nb >= 0 && weapon_nb < _weapons_list.Length && _showInfos == false)
+        {
+            GameObject obj = _weapons_list[weapon_nb];
+            if(obj != null)
+            {
+                Weapon weapon = obj.GetComponent<Weapon>();
+                if(weapon != null)
+                {
+                    Button btn = GetWeaponButton(weapon_nb);
+                    if(btn != null)
+                    {
+                        _txt_weaponInfos.gameObject.SetActive(true);
+                        _txt_weaponInfos.position = btn.gameObject.transform.position + new Vector3(-80f, -7.5f, 0f);
+                        Text txt = _txt_weaponInfos.GetComponent<Text>();
+                        txt.CrossFadeAlpha(1f, 0.2f, true);
+                        txt.text = string.Format("Price : {0}", weapon.Price);
+                        _showInfos = true;
+                    }
+                }
+            }
+        }
+    }
+
+    public void HideWeaponInfos(int weapon_nb)
+    {
+        Text txt = _txt_weaponInfos.GetComponent<Text>();
+        txt.CrossFadeAlpha(0f, 0.2f, true);
+        _showInfos = false;
+        //Invoke("DisableWeaponInfos", 1f);
+
+    }
+
+    private void DisableWeaponInfos()
+    {
+        _txt_weaponInfos.gameObject.SetActive(false);
+    }
+
+    private Button GetWeaponButton(int weapon_nb)
+    {
+        Button b = null;
+
+        switch(weapon_nb)
+        {
+            case 0:
+                b = _bt_flamethrower;
+                break;
+            case 1:
+                b = _bt_gatling;
+                break;
+            case 2:
+                break;
+            case 3:
+                b = _bt_laserblast;
+                break;
+            case 4:
+                b = _bt_rocketlauncher;
+                break;
+            case 5:
+                b = _bt_shotgun;
+                break;
+            default:
+                break;
+        }
+
+        return b;
     }
 }
