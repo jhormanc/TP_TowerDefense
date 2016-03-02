@@ -226,8 +226,8 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        float f = Time.realtimeSinceStartup * 4f * Speed;
-        Vector3 delta_h = 0.2f * Vector3.up * Mathf.Cos(f);
+        //float f = Time.realtimeSinceStartup * 4f * Speed;
+        //Vector3 delta_h = 0.2f * Vector3.up * Mathf.Cos(f);
 
         target = target + Vector3.up * 1.5f;// + delta_h;
         // Direction to the next waypoint

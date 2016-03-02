@@ -23,9 +23,13 @@ public class RocketLauncher : Weapon
     private ParticleSystem _particle5;
     private ParticleSystem _particle6;
 
+    private float timeSpecial;
+    private float baseFireRate;
+    private bool special;
+
     public RocketLauncher() : base()
     {
-
+        
     }
 
     protected override void Awake()
@@ -43,11 +47,21 @@ public class RocketLauncher : Weapon
         _particle4 = _cannon4.FindChild("Particle").GetComponent<ParticleSystem>();
         _particle5 = _cannon5.FindChild("Particle").GetComponent<ParticleSystem>();
         _particle6 = _cannon6.FindChild("Particle").GetComponent<ParticleSystem>();
+
+        timeSpecial = 0f;
+        baseFireRate = FireRate;
+        special = false;
     }
 
     protected void OnEnable()
     {
         _selected_cannon = 1;
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        timeSpecial += Time.deltaTime;
     }
 
     protected override void Move()
@@ -82,6 +96,18 @@ public class RocketLauncher : Weapon
 
     protected override void Fire()
     {
+        if (!special && timeSpecial >= 10f)
+        {
+            FireRate = 6f;
+            special = true;
+        }
+
+        if (special && timeSpecial > 10.5f)
+        {
+            FireRate = baseFireRate;
+            special = false;
+            timeSpecial = 0f;
+        }
         Transform shoot = GetCannon();
         GameObject bullet = _bullets.GetNextObj();
 

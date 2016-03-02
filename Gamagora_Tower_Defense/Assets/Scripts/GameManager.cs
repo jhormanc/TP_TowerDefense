@@ -70,8 +70,20 @@ public class GameManager : Singleton<GameManager>
 
     private bool _showInfos;
 
+
+    private IEnumerator WaitForLoading()
+    {
+        yield return new WaitForSeconds(1f);
+        Init();
+    }
+
     // Use this for initialization
     void Awake()
+    {
+        StartCoroutine("WaitForLoading");
+    }
+
+    void Init()
     {
         _soundManager = SoundManager.Instance;
 
@@ -101,7 +113,7 @@ public class GameManager : Singleton<GameManager>
         // Deux pouvoirs
         _powers = new List<PullManager>();
 
-        if(Fireball != null)
+        if (Fireball != null)
         {
             PullManager power = ScriptableObject.CreateInstance<PullManager>();
             power.Init(Fireball, 5);
@@ -648,11 +660,6 @@ public class GameManager : Singleton<GameManager>
 
         _num_power = nb;
         RefreshUI();
-    }
-
-    public void LoadScene(string name)
-    {
-        SceneManager.LoadSceneAsync(name);
     }
 
     public void PauseGame(bool pause)
